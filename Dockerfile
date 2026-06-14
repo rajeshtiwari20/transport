@@ -1,14 +1,12 @@
-# Step 1: Use an official lightweight Java runtime base image
-FROM eclipse-temurin:17-jre-alpine
-
-# Step 2: Set the working directory inside the container
+# Stage 1: Build the application using Maven and Java 17
+FROM maven:3.8.5-openjdk-17 AS build
 WORKDIR /app
+COPY . .
+RUN ./mvnw clean package -DskipTests
 
-# Step 3: Copy the compiled JAR file from your host machine into the container
-COPY transport-new-0.0.1-SNAPSHOT.jar app.jar
-
-# Step 4: Expose the port the app runs on
+# Stage 2: Run the application using a lightweight Java runtime
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY --from=build /app/target/demo-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
-
-# Step 5: Define the command to execute the JAR file
 ENTRYPOINT ["java", "-jar", "app.jar"]
