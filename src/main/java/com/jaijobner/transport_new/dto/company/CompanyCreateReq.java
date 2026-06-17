@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class CompanyRequest {
+public class CompanyCreateReq {
     @NotBlank(message = "Company name can not be null")
     private String companyName;
     private String companyCode;

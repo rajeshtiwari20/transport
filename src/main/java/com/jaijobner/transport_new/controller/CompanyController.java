@@ -1,7 +1,8 @@
 package com.jaijobner.transport_new.controller;
 
 import com.jaijobner.transport_new.dto.ApiResponse;
-import com.jaijobner.transport_new.dto.company.CompanyRequest;
+import com.jaijobner.transport_new.dto.company.CompanyCreateReq;
+import com.jaijobner.transport_new.dto.company.CompanyUpdateReq;
 import com.jaijobner.transport_new.entity.Company;
 import com.jaijobner.transport_new.service.CompanyService;
 import com.jaijobner.transport_new.utils.SecurityUtils;
@@ -49,7 +50,7 @@ public class CompanyController {
     }
 
     @PostMapping("")
-    public ResponseEntity<ApiResponse<Company>> createCompany(@Valid @RequestBody CompanyRequest createCompany) {
+    public ResponseEntity<ApiResponse<Company>> createCompany(@Valid @RequestBody CompanyCreateReq createCompany) {
         if(!SecurityUtils.isAuthenticated()) {
             return ResponseEntity.status(401).body(ApiResponse.fail("Unauthorized"));
         }
@@ -77,4 +78,57 @@ public class CompanyController {
             return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while creating company"));
         }
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<Company>> updateCompany(@PathVariable Long id, @Valid @RequestBody CompanyUpdateReq updateCompany) {
+        if(!SecurityUtils.isAuthenticated()) {
+            return ResponseEntity.status(401).body(ApiResponse.fail("Unauthorized"));
+        }
+
+        try{
+            Company companyEntity = companyService.getCompanyById(id);
+            if (companyEntity == null) {
+                return ResponseEntity.status(404).body(ApiResponse.fail("Company not found"));
+            }
+
+            companyEntity.setCompanyCode(updateCompany.getCompanyCode());
+            companyEntity.setCompanyName(updateCompany.getCompanyName());
+            companyEntity.setContactPersonName(updateCompany.getContactPersonName());
+            companyEntity.setContactPersonMobile(updateCompany.getContactPersonMobile());
+            companyEntity.setCompanyType(updateCompany.getCompanyType());
+            companyEntity.setEmail(updateCompany.getEmail());
+            companyEntity.setMobile(updateCompany.getMobile());
+            companyEntity.setAddress1(updateCompany.getAddress1());
+            companyEntity.setAddress2(updateCompany.getAddress2());
+            companyEntity.setDistrict(updateCompany.getDistrict());
+            companyEntity.setState(updateCompany.getState());
+            companyEntity.setPinNo(updateCompany.getPinNo());
+            companyEntity.setGstNo(updateCompany.getGstNo());
+
+
+            return ResponseEntity.ok(ApiResponse.success("Company updated successfully", companyService.updateCompany(companyEntity)))   ;
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while updating company"));
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteCompany(@PathVariable Long id) {
+        if(!SecurityUtils.isAuthenticated()) {
+            return ResponseEntity.status(401).body(ApiResponse.fail("Unauthorized"));
+        }
+
+        try{
+            Company companyEntity = companyService.getCompanyById(id);
+            if (companyEntity == null) {
+                return ResponseEntity.status(404).body(ApiResponse.fail("Company not found"));
+            }
+
+            companyService.deleteCompany(companyEntity);
+            return ResponseEntity.ok(ApiResponse.success("Company deleted successfully", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while deleting company"));
+        }
+    }
+
 }
