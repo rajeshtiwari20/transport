@@ -11,4 +11,6 @@ public class PartyReq {
     @Min(1) @Max(1000)
     private Integer pageSize = 500;
     private String sortBy = "partyName";
+    private String sortDirection = "ASC";
+    private String searchTerm;
 }

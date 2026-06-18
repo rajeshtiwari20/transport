@@ -20,11 +20,17 @@ public class PartyService {
     PartyRepository partyRepository;
 
     public Page<PartyEntity> getAllParties(PartyReq req) {
-        Sort sort = req.getSortBy().equalsIgnoreCase(Sort.Direction.DESC.name())
+        Sort sort = req.getSortDirection().equalsIgnoreCase(Sort.Direction.DESC.name())
                 ? Sort.by(req.getSortBy()).descending()
                 : Sort.by(req.getSortBy()).ascending();
 
         Pageable pageable = PageRequest.of(req.getPageNo()-1, req.getPageSize(), sort);
+
+        if (req.getSearchTerm() != null && !req.getSearchTerm().trim().isEmpty()) {
+            String searchTerm = req.getSearchTerm().trim();
+            return partyRepository.findByPartyNameContainingIgnoreCaseOrMobileContainingIgnoreCase(searchTerm, searchTerm, pageable);
+        }
+
         return partyRepository.findAll(pageable);
     }
 
