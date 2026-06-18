@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class PartyGetResp {
+    private Long id;
     private String partyName;
     private String partyCode;
     private PartyType partyType;

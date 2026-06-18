@@ -27,7 +27,7 @@ public class PartyController {
     @Autowired
     private PartyMapper partyMapper;
 
-    @PostMapping("/parties")
+    @PostMapping("/list")
     public ResponseEntity<ApiResponse<Page<PartyResp>>> getParties(@Valid @RequestBody PartyReq req){
         if(!SecurityUtils.isAuthenticated()) {
             return ResponseEntity.status(401).body(ApiResponse.fail("Unauthorized"));
