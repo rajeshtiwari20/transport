@@ -26,6 +26,11 @@ public class DriverController {
 
     @PostMapping("/list")
     public ResponseEntity<ApiResponse<Page<DriverResp>>> getDrivers(@Valid @RequestBody DriverReq req) {
+        if(!SecurityUtils.isAuthenticated()) {
+            return ResponseEntity.status(401).body(ApiResponse.fail("Unauthorized"));
+        }
+
+
         try {
             var drivers = driverService.getAllDrivers(req).map(driverMapper::driverEntityToDriverResp);
             return ResponseEntity.ok(ApiResponse.success("Drivers retrieved successfully", drivers));

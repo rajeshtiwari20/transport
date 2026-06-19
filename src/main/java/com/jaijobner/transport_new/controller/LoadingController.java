@@ -1,0 +1,66 @@
+package com.jaijobner.transport_new.controller;
+
+import com.jaijobner.transport_new.dto.ApiResponse;
+import com.jaijobner.transport_new.dto.loading.LoadingCreateReq;
+import com.jaijobner.transport_new.dto.loading.LoadingGetResp;
+import com.jaijobner.transport_new.dto.loading.LoadingReq;
+import com.jaijobner.transport_new.dto.loading.LoadingResp;
+import com.jaijobner.transport_new.service.LoadingService;
+import com.jaijobner.transport_new.utils.SecurityUtils;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/loading")
+public class LoadingController {
+    @Autowired
+    private LoadingService loadingService;
+
+    @PostMapping("/list")
+    public ResponseEntity<ApiResponse<Page<LoadingResp>>> getLoadings(@Valid @RequestBody LoadingReq req) {
+        if(!SecurityUtils.isAuthenticated()) {
+            return ResponseEntity.status(401).body(ApiResponse.fail("Unauthorized"));
+        }
+
+        try {
+            Page<LoadingResp> loadings = loadingService.getLoadings(req);
+            return ResponseEntity.ok(ApiResponse.success("Loadings retrieved successfully", loadings));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while retrieving loadings"));
+        }
+    }
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<Void>> createLoading(@Valid @RequestBody LoadingCreateReq req) {
+        if(!SecurityUtils.isAuthenticated()) {
+            return ResponseEntity.status(401).body(ApiResponse.fail("Unauthorized"));
+        }
+
+        try {
+            loadingService.createLoading(req);
+            return ResponseEntity.ok(ApiResponse.success("Loading created successfully", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while creating the loading"));
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<LoadingGetResp>> getLoading(@PathVariable Long id) {
+        if(!SecurityUtils.isAuthenticated()) {
+            return ResponseEntity.status(401).body(ApiResponse.fail("Unauthorized"));
+        }
+
+        try {
+            LoadingGetResp loading = loadingService.getLoading(id);
+            if (loading == null) {
+                return ResponseEntity.status(404).body(ApiResponse.fail("Loading not found"));
+            }
+            return ResponseEntity.ok(ApiResponse.success("Loading retrieved successfully", loading));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while retrieving the loading"));
+        }
+    }
+}
