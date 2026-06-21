@@ -1,10 +1,7 @@
 package com.jaijobner.transport_new.controller;
 
 import com.jaijobner.transport_new.dto.ApiResponse;
-import com.jaijobner.transport_new.dto.loading.LoadingCreateReq;
-import com.jaijobner.transport_new.dto.loading.LoadingGetResp;
-import com.jaijobner.transport_new.dto.loading.LoadingReq;
-import com.jaijobner.transport_new.dto.loading.LoadingResp;
+import com.jaijobner.transport_new.dto.loading.*;
 import com.jaijobner.transport_new.service.LoadingService;
 import com.jaijobner.transport_new.utils.SecurityUtils;
 import jakarta.validation.Valid;
@@ -59,6 +56,19 @@ public class LoadingController {
                 return ResponseEntity.status(404).body(ApiResponse.fail("Loading not found"));
             }
             return ResponseEntity.ok(ApiResponse.success("Loading retrieved successfully", loading));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while retrieving the loading"));
+        }
+    }
+
+    @GetMapping("lr-number/{companyId}")
+    public ResponseEntity<ApiResponse<LoadingLRNumResp>> getNewLrNum(@PathVariable Long companyId) {
+        if(!SecurityUtils.isAuthenticated()) {
+            return ResponseEntity.status(401).body(ApiResponse.fail("Unauthorized"));
+        }
+
+        try {
+            return ResponseEntity.ok(ApiResponse.success("Loading retrieved successfully", loadingService.getNewLrNum(companyId)));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while retrieving the loading"));
         }

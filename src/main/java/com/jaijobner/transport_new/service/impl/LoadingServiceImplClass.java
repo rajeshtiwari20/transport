@@ -1,9 +1,6 @@
 package com.jaijobner.transport_new.service.impl;
 
-import com.jaijobner.transport_new.dto.loading.LoadingCreateReq;
-import com.jaijobner.transport_new.dto.loading.LoadingGetResp;
-import com.jaijobner.transport_new.dto.loading.LoadingReq;
-import com.jaijobner.transport_new.dto.loading.LoadingResp;
+import com.jaijobner.transport_new.dto.loading.*;
 import com.jaijobner.transport_new.entity.*;
 import com.jaijobner.transport_new.mapper.LoadingDetailsMapper;
 import com.jaijobner.transport_new.mapper.LoadingMapper;
@@ -23,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -103,8 +101,12 @@ public class LoadingServiceImplClass implements LoadingService {
             }
 
             LoadingEntity loadingEntity = loadingMapper.toLoadingEntityFromLoadingCreateReq(req, company, truck, consignee, consignor);
-            String lrNumber = generateLrNumber(req);
+            String lrNumber = generateLrNumber(req.getCompanyId());
             loadingEntity.setLrNumber(lrNumber);
+            loadingEntity.setCompanyName(company.getCompanyName());
+            loadingEntity.setTruckNumber(truck.getTruckNum());
+            loadingEntity.setConsigneeName(consignee.getPartyName());
+            loadingEntity.setConsignorName(consignor.getPartyName());
 
             //save
             LoadingEntity savedLoading = loadingRepository.save(loadingEntity);
@@ -135,14 +137,20 @@ public class LoadingServiceImplClass implements LoadingService {
         return loadingMapper.toLoadingGetRespFromLoadingEntity(loadingEntity);
     }
 
-    private String generateLrNumber(LoadingCreateReq req) {
-        Optional<LoadingEntity> lastLoadingEntry = loadingRepository.findFirstByCompanyIdOrderByIdDesc(req.getCompanyId());
+    @Override
+    public LoadingLRNumResp getNewLrNum(Long companyId) {
+        return loadingMapper.toLoadingLRNumResp(generateLrNumber(companyId));
+    }
+
+    private String generateLrNumber(Long companyId) {
+        Optional<LoadingEntity> lastLoadingEntry = loadingRepository.findFirstByCompanyIdOrderByIdDesc(companyId);
         if(lastLoadingEntry.isPresent()) {
             LoadingEntity loadingEntity = lastLoadingEntry.get();
-            long lastLrNumber = Long.parseLong(loadingEntity.getLrNumber());
-            return String.valueOf(lastLrNumber + 1);
+            long newLrNumber = Long.parseLong(loadingEntity.getLrNumber()) + 1;
+            DecimalFormat fmt = new DecimalFormat("0000");
+            return fmt.format(newLrNumber);
         } else {
-            return "1";
+            return "0001";
         }
     }
 }

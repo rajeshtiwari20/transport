@@ -1,5 +1,6 @@
 package com.jaijobner.transport_new.dto.loading;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -12,6 +13,7 @@ public class LoadingCreateReq {
     @NotNull(message = "Company is required")
     private Long companyId;
 
+    @NotBlank(message = "LR Date is required")
     private Date lrDate;
 
     @NotEmpty(message = "From is required")

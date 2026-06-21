@@ -2,6 +2,7 @@ package com.jaijobner.transport_new.mapper;
 
 import com.jaijobner.transport_new.dto.loading.LoadingCreateReq;
 import com.jaijobner.transport_new.dto.loading.LoadingGetResp;
+import com.jaijobner.transport_new.dto.loading.LoadingLRNumResp;
 import com.jaijobner.transport_new.dto.loading.LoadingResp;
 import com.jaijobner.transport_new.entity.*;
 import org.mapstruct.Mapper;
@@ -39,4 +40,6 @@ public interface LoadingMapper {
     LoadingGetResp.LoadingDetailsGetResp toLoadingDetailsGetResp(LoadingDetailsEntity details);
 
     LoadingGetResp.LoadingMaterialGetResp toLoadingMaterialGetResp(LoadingMaterialEntity material);
+
+    LoadingLRNumResp toLoadingLRNumResp(String lrNum);
 }
