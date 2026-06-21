@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/party")
 public class PartyController {
@@ -99,6 +102,24 @@ public class PartyController {
             return ResponseEntity.ok(ApiResponse.success("Party deleted successfully", null));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while deleting the party"));
+        }
+    }
+
+    @GetMapping("/compact/list/{type}")
+    public ResponseEntity<ApiResponse<List<PartyCompactResp>>> toCompactList(@PathVariable Integer type) {
+        if(!SecurityUtils.isAuthenticated()) {
+            return ResponseEntity.status(401).body(ApiResponse.fail("Unauthorized"));
+        }
+
+        try {
+            List<Integer> validType = new ArrayList<>(List.of(1,2));
+            if(!validType.contains(type)) {
+                return ResponseEntity.status(403).body(ApiResponse.fail("Invalid type in req"));
+            }
+
+            return ResponseEntity.ok(ApiResponse.success("Party compact list fetched successfully", partyService.toCompactList(type)));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while fetching compact party list"));
         }
     }
 }

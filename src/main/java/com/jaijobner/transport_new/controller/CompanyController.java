@@ -1,6 +1,7 @@
 package com.jaijobner.transport_new.controller;
 
 import com.jaijobner.transport_new.dto.ApiResponse;
+import com.jaijobner.transport_new.dto.company.CompanyCompactResp;
 import com.jaijobner.transport_new.dto.company.CompanyCreateReq;
 import com.jaijobner.transport_new.dto.company.CompanyUpdateReq;
 import com.jaijobner.transport_new.entity.Company;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -128,6 +130,19 @@ public class CompanyController {
             return ResponseEntity.ok(ApiResponse.success("Company deleted successfully", null));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while deleting company"));
+        }
+    }
+
+    @GetMapping("/compact/list")
+    public ResponseEntity<ApiResponse<List<CompanyCompactResp>>> getCompactList() {
+        if(!SecurityUtils.isAuthenticated()) {
+            return ResponseEntity.status(401).body(ApiResponse.fail("Unauthorized"));
+        }
+
+        try{
+            return ResponseEntity.ok(ApiResponse.success("Compact company list retrieved successfully", companyService.getCompactList()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while getting compact company list"));
         }
     }
 

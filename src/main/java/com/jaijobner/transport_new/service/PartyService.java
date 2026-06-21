@@ -1,7 +1,10 @@
 package com.jaijobner.transport_new.service;
 
+import com.jaijobner.transport_new.dto.party.PartyCompactResp;
 import com.jaijobner.transport_new.dto.party.PartyCreateReq;
 import com.jaijobner.transport_new.dto.party.PartyUpdateReq;
+import com.jaijobner.transport_new.enums.PartyType;
+import com.jaijobner.transport_new.mapper.PartyMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,12 +15,16 @@ import com.jaijobner.transport_new.entity.PartyEntity;
 import com.jaijobner.transport_new.repository.PartyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class PartyService {
     @Autowired
     PartyRepository partyRepository;
+
+    @Autowired
+    PartyMapper partyMapper;
 
     public Page<PartyEntity> getAllParties(PartyReq req) {
         Sort sort = req.getSortDirection().equalsIgnoreCase(Sort.Direction.DESC.name())
@@ -96,5 +103,13 @@ public class PartyService {
         } else {
             throw new RuntimeException("Party not found with id: " + id);
         }
+    }
+
+    public List<PartyCompactResp> toCompactList(Integer type){
+        String strPartyType = type.equals(1) ? "CONSIGNEE" : "CONSIGNOR";
+
+        PartyType partyType = PartyType.valueOf(strPartyType);
+
+        return partyMapper.toCompactResp(partyRepository.findByPartyTypeOrderByPartyNameAsc(partyType));
     }
 }

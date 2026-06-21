@@ -31,6 +31,7 @@ public class LoadingGetResp {
         private String consignorGstNum;
         private String consigneeAddress;
         private String consigneeGstNum;
+        private String shipByParty;
         private Long driver1_id;
         private String driver1Name;
         private Long driver2_id;

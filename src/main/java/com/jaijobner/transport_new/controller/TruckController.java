@@ -1,10 +1,7 @@
 package com.jaijobner.transport_new.controller;
 
 import com.jaijobner.transport_new.dto.ApiResponse;
-import com.jaijobner.transport_new.dto.truck.TruckCreateReq;
-import com.jaijobner.transport_new.dto.truck.TruckReq;
-import com.jaijobner.transport_new.dto.truck.TruckResp;
-import com.jaijobner.transport_new.dto.truck.TruckUpdateReq;
+import com.jaijobner.transport_new.dto.truck.*;
 import com.jaijobner.transport_new.mapper.TruckMapper;
 import com.jaijobner.transport_new.service.TruckService;
 import com.jaijobner.transport_new.utils.SecurityUtils;
@@ -13,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/truck")
@@ -89,6 +88,19 @@ public class TruckController {
         try {
             truckService.deleteTruck(id);
             return ResponseEntity.ok(ApiResponse.success("Truck deleted successfully", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while deleting the truck"));
+        }
+    }
+
+    @GetMapping("/compact/list")
+    public ResponseEntity<ApiResponse<List<TruckCompactResp>>> getCompactList(){
+        if(!SecurityUtils.isAuthenticated()) {
+            return ResponseEntity.status(401).body(ApiResponse.fail("Unauthorized"));
+        }
+
+        try {
+            return ResponseEntity.ok(ApiResponse.success("Truck compact list fetched successfully", truckService.getCompactList()));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while deleting the truck"));
         }

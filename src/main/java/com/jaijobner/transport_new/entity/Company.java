@@ -27,7 +27,7 @@ public class Company {
     @Column(nullable = false)
     private CompanyType companyType;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String email;
 
     @Column(nullable = false)

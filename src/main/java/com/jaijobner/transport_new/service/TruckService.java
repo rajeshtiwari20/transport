@@ -1,5 +1,6 @@
 package com.jaijobner.transport_new.service;
 
+import com.jaijobner.transport_new.dto.truck.TruckCompactResp;
 import com.jaijobner.transport_new.dto.truck.TruckCreateReq;
 import com.jaijobner.transport_new.dto.truck.TruckReq;
 import com.jaijobner.transport_new.dto.truck.TruckUpdateReq;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -80,5 +82,9 @@ public class TruckService {
         } else {
             throw new RuntimeException("Truck not found with id: " + id);
         }
+    }
+
+    public List<TruckCompactResp> getCompactList() {
+        return truckMapper.toCompactResp(truckRepository.findAllProjectedByOrderByTruckNumAsc());
     }
 }

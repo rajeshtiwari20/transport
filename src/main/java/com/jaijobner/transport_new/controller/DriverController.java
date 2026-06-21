@@ -1,10 +1,7 @@
 package com.jaijobner.transport_new.controller;
 
 import com.jaijobner.transport_new.dto.ApiResponse;
-import com.jaijobner.transport_new.dto.driver.DriverCreateReq;
-import com.jaijobner.transport_new.dto.driver.DriverReq;
-import com.jaijobner.transport_new.dto.driver.DriverResp;
-import com.jaijobner.transport_new.dto.driver.DriverUpdateReq;
+import com.jaijobner.transport_new.dto.driver.*;
 import com.jaijobner.transport_new.mapper.DriverMapper;
 import com.jaijobner.transport_new.service.DriverService;
 import com.jaijobner.transport_new.utils.SecurityUtils;
@@ -13,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/driver")
@@ -97,6 +96,19 @@ public class DriverController {
             return ResponseEntity.ok(ApiResponse.success("Driver deleted successfully", null));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while deleting the driver"));
+        }
+    }
+
+    @GetMapping("/compact/list")
+    public ResponseEntity<ApiResponse<List<DriverCompactResp>>> getCompactList() {
+        if(!SecurityUtils.isAuthenticated()) {
+            return ResponseEntity.status(401).body(ApiResponse.fail("Unauthorized"));
+        }
+
+        try {
+            return ResponseEntity.ok(ApiResponse.success("Driver compact list retrieved successfully", driverService.getCompactList()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while retrieving the driver compact list"));
         }
     }
 }

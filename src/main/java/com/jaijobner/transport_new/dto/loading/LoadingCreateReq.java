@@ -39,6 +39,8 @@ public class LoadingCreateReq {
     @NotEmpty(message = "Consignor GST Number is required")
     private String consignorGstNum;
 
+    private String shipByParty;
+
     @NotNull(message = "Truck is required")
     private Long truckId;
 

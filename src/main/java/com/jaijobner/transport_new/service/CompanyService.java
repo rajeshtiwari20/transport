@@ -1,6 +1,8 @@
 package com.jaijobner.transport_new.service;
 
+import com.jaijobner.transport_new.dto.company.CompanyCompactResp;
 import com.jaijobner.transport_new.entity.Company;
+import com.jaijobner.transport_new.mapper.CompanyMapper;
 import com.jaijobner.transport_new.repository.CompanyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +13,8 @@ import java.util.List;
 public class CompanyService {
     @Autowired
     private CompanyRepository companyRepository;
+    @Autowired
+    private CompanyMapper companyMapper;
 
     public List<Company> getAllCompanies() {
         return companyRepository.findAll();
@@ -30,5 +34,9 @@ public class CompanyService {
 
     public void deleteCompany(Company company) {
         companyRepository.delete(company);
+    }
+
+    public List<CompanyCompactResp> getCompactList(){
+        return companyMapper.toCompactRespList(companyRepository.findAllProjectedByOrderByCompanyNameAsc());
     }
 }

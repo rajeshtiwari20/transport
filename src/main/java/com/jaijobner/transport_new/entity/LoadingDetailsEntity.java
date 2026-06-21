@@ -41,6 +41,9 @@ public class LoadingDetailsEntity {
     @Column(nullable = false)
     private String consigneeGstNum;
 
+    @Lob
+    private String shipByParty;
+
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "driver1_id")
