@@ -24,7 +24,8 @@ public class LoadingEntity {
     private LoadingDetailsEntity loadingDetails;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "loading", cascade = CascadeType.ALL)
+    // Enable orphanRemoval so that removing a child from the collection will delete it from DB
+    @OneToMany(mappedBy = "loading", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LoadingMaterialEntity> loadingMaterial = new ArrayList<>();
 
     @ToString.Exclude

@@ -1,12 +1,10 @@
 package com.jaijobner.transport_new.mapper;
 
-import com.jaijobner.transport_new.dto.loading.LoadingCreateReq;
-import com.jaijobner.transport_new.dto.loading.LoadingGetResp;
-import com.jaijobner.transport_new.dto.loading.LoadingLRNumResp;
-import com.jaijobner.transport_new.dto.loading.LoadingResp;
+import com.jaijobner.transport_new.dto.loading.*;
 import com.jaijobner.transport_new.entity.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring", imports = {com.jaijobner.transport_new.enums.LoadingStatus.class})
 public interface LoadingMapper {
@@ -42,4 +40,22 @@ public interface LoadingMapper {
     LoadingGetResp.LoadingMaterialGetResp toLoadingMaterialGetResp(LoadingMaterialEntity material);
 
     LoadingLRNumResp toLoadingLRNumResp(String lrNum);
+
+
+    @Mapping(target = "company", source = "company")
+    @Mapping(target = "companyName", source = "company.companyName")
+    @Mapping(target = "truck", source = "truck")
+    @Mapping(target = "truckNumber", source = "truck.truckNum")
+    @Mapping(target = "consignee", source = "consignee")
+    @Mapping(target = "consigneeName", source = "consignee.partyName")
+    @Mapping(target = "consignor", source = "consignor")
+    @Mapping(target = "consignorName", source = "consignor.partyName")
+    @Mapping(target = "loadingDetails", ignore = true)
+    @Mapping(target = "loadingMaterial", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    void toLoadingEntityFromLoadingUpdateReq(LoadingUpdateReq req, Company company, TruckEntity truck, PartyEntity consignee, PartyEntity consignor, @MappingTarget LoadingEntity entity);
+
+
 }

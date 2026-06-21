@@ -61,6 +61,20 @@ public class LoadingController {
         }
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> updateLoading(@PathVariable Long id, @Valid @RequestBody LoadingUpdateReq req) {
+        if(!SecurityUtils.isAuthenticated()) {
+            return ResponseEntity.status(401).body(ApiResponse.fail("Unauthorized"));
+        }
+
+        try {
+            loadingService.updateLoading(id, req);
+            return ResponseEntity.ok(ApiResponse.success("Loading retrieved successfully", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while updating the loading"));
+        }
+    }
+
     @GetMapping("lr-number/{companyId}")
     public ResponseEntity<ApiResponse<LoadingLRNumResp>> getNewLrNum(@PathVariable Long companyId) {
         if(!SecurityUtils.isAuthenticated()) {

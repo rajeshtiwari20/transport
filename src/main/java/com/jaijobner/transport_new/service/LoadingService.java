@@ -11,4 +11,6 @@ public interface LoadingService {
     LoadingGetResp getLoading(Long id);
 
     LoadingLRNumResp getNewLrNum(Long companyId);
+
+    void updateLoading(Long id, LoadingUpdateReq req);
 }

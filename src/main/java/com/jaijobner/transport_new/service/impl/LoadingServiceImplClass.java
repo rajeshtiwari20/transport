@@ -21,10 +21,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -136,6 +134,57 @@ public class LoadingServiceImplClass implements LoadingService {
         log.info("Loading found with ID: {}, LR Number: {}", id, loadingEntity.getLrNumber());
         return loadingMapper.toLoadingGetRespFromLoadingEntity(loadingEntity);
     }
+
+    @Override
+    @Transactional
+    public void updateLoading(Long id, LoadingUpdateReq req) {
+        LoadingEntity loadingEntity =  loadingRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Loading not found with id:" + id));
+
+        Company company = companyRepository.findById(req.getCompanyId()).orElseThrow(() -> new EntityNotFoundException("Company not found with id:" + req.getCompanyId()));
+
+        TruckEntity truck = truckRepository.findById(req.getTruckId()).orElseThrow(() -> new EntityNotFoundException("Truck not found with id:" + req.getTruckId()));
+
+        PartyEntity consignee = partyRepository.findById(req.getConsigneeId()).orElseThrow(() -> new EntityNotFoundException("Consignee not found with id:" + req.getConsigneeId()));
+
+        PartyEntity consignor = partyRepository.findById(req.getConsignorId()).orElseThrow(() -> new EntityNotFoundException("Consignor not found with id:" + req.getConsignorId()));
+
+        DriverEntity driver1 = null;
+        if (Objects.nonNull(req.getDriver1())) {
+            driver1 = driverRepository.findById(req.getDriver1()).orElseThrow(() -> new EntityNotFoundException("Driver 1 not found with id:" + req.getDriver1()));
+        }
+
+        DriverEntity driver2 = null;
+        if (Objects.nonNull(req.getDriver2())) {
+            driver2 = driverRepository.findById(req.getDriver2()).orElseThrow(() -> new EntityNotFoundException("Driver 2 not found with id:" + req.getDriver2()));
+        }
+        //saving loading entity
+        loadingMapper.toLoadingEntityFromLoadingUpdateReq(req, company, truck, consignee, consignor, loadingEntity);
+        loadingRepository.save(loadingEntity);
+
+        //saving loading details entity
+        LoadingDetailsEntity loadingDetailsEntity = loadingEntity.getLoadingDetails();
+        loadingDetailsMapper.toLoadingDetailsEntityFromLoadingUpdateReq(req, driver1, driver2, loadingDetailsEntity);
+        loadingDetailsRepository.save(loadingDetailsEntity);
+
+        //saving material
+        Set<Long> incomingChildIds = req.getLoadingMaterialReqList().stream()
+                .map(LoadingUpdateReq.LoadingMaterialReq::getId)
+                .filter(Objects::nonNull)
+                .filter(childId -> childId > 0)
+                .collect(Collectors.toSet());
+
+        List<LoadingMaterialEntity> materials = req.getLoadingMaterialReqList().stream()
+                .map(loadingMaterialMapper::toLoadingMaterialEntity)
+                .peek(mat -> mat.setLoading(loadingEntity))
+                .toList();
+
+        loadingEntity.getLoadingMaterial().removeIf(material -> !incomingChildIds.contains(material.getId()));
+
+        loadingMaterialRepository.saveAll(materials);
+
+    }
+
+
 
     @Override
     public LoadingLRNumResp getNewLrNum(Long companyId) {
