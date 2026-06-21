@@ -6,4 +6,5 @@ import lombok.Data;
 public class PartyCompactResp {
     private Long id;
     private String partyName;
+    private String gstNo;
 }
