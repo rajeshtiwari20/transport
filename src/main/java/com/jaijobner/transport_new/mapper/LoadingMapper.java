@@ -35,6 +35,8 @@ public interface LoadingMapper {
     @Mapping(target = "loadingMaterial", source = "loadingMaterial")
     LoadingGetResp toLoadingGetRespFromLoadingEntity(LoadingEntity loadingEntity);
 
+    @Mapping(target = "driver1_id", source = "driver1.id")
+    @Mapping(target = "driver2_id", source = "driver2.id")
     LoadingGetResp.LoadingDetailsGetResp toLoadingDetailsGetResp(LoadingDetailsEntity details);
 
     LoadingGetResp.LoadingMaterialGetResp toLoadingMaterialGetResp(LoadingMaterialEntity material);
