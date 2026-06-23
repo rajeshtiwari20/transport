@@ -8,7 +8,15 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/loading")
@@ -69,7 +77,7 @@ public class LoadingController {
 
         try {
             loadingService.updateLoading(id, req);
-            return ResponseEntity.ok(ApiResponse.success("Loading retrieved successfully", null));
+            return ResponseEntity.ok(ApiResponse.success("Loading updated successfully", null));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while updating the loading"));
         }
@@ -85,6 +93,32 @@ public class LoadingController {
             return ResponseEntity.ok(ApiResponse.success("Loading retrieved successfully", loadingService.getNewLrNum(companyId)));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while retrieving the loading"));
+        }
+    }
+
+    @GetMapping("/unloading/list")
+    public ResponseEntity<ApiResponse<List<LoadingUnloadingResp>>> getUploadingList() {
+        if(!SecurityUtils.isAuthenticated()) {
+            return ResponseEntity.status(401).body(ApiResponse.fail("Unauthorized"));
+        }
+
+        try {
+            return ResponseEntity.ok(ApiResponse.success("Unloading Loading retrieved successfully", loadingService.getUploadingList()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while retrieving the unloading loading"));
+        }
+    }
+
+    @GetMapping("/material-weight/{id}")
+    public ResponseEntity<ApiResponse<LoadingMaterialWeightResp>> getLoadingMaterialWeight(@PathVariable Long id) {
+        if(!SecurityUtils.isAuthenticated()) {
+            return ResponseEntity.status(401).body(ApiResponse.fail("Unauthorized"));
+        }
+
+        try {
+            return ResponseEntity.ok(ApiResponse.success("Loading material retrieved successfully", loadingService.getLoadingMaterialWeight(id)));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while retrieving the unloading material"));
         }
     }
 }

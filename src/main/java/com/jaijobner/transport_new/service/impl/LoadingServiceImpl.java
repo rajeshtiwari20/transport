@@ -1,11 +1,24 @@
 package com.jaijobner.transport_new.service.impl;
 
 import com.jaijobner.transport_new.dto.loading.*;
-import com.jaijobner.transport_new.entity.*;
+import com.jaijobner.transport_new.entity.TruckEntity;
+import com.jaijobner.transport_new.entity.LoadingEntity;
+import com.jaijobner.transport_new.entity.Company;
+import com.jaijobner.transport_new.entity.PartyEntity;
+import com.jaijobner.transport_new.entity.DriverEntity;
+import com.jaijobner.transport_new.entity.LoadingDetailsEntity;
+import com.jaijobner.transport_new.entity.LoadingMaterialEntity;
+import com.jaijobner.transport_new.enums.LoadingStatus;
 import com.jaijobner.transport_new.mapper.LoadingDetailsMapper;
 import com.jaijobner.transport_new.mapper.LoadingMapper;
 import com.jaijobner.transport_new.mapper.LoadingMaterialMapper;
-import com.jaijobner.transport_new.repository.*;
+import com.jaijobner.transport_new.repository.LoadingRepository;
+import com.jaijobner.transport_new.repository.LoadingDetailsRepository;
+import com.jaijobner.transport_new.repository.PartyRepository;
+import com.jaijobner.transport_new.repository.TruckRepository;
+import com.jaijobner.transport_new.repository.LoadingMaterialRepository;
+import com.jaijobner.transport_new.repository.CompanyRepository;
+import com.jaijobner.transport_new.repository.DriverRepository;
 import com.jaijobner.transport_new.service.LoadingService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Predicate;
@@ -21,13 +34,17 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class LoadingServiceImplClass implements LoadingService {
+public class LoadingServiceImpl implements LoadingService {
     @Autowired
     LoadingRepository loadingRepository;
     private final LoadingMaterialRepository loadingMaterialRepository;
@@ -184,11 +201,33 @@ public class LoadingServiceImplClass implements LoadingService {
 
     }
 
-
-
     @Override
     public LoadingLRNumResp getNewLrNum(Long companyId) {
         return loadingMapper.toLoadingLRNumResp(generateLrNumber(companyId));
+    }
+
+    @Override
+    public List<LoadingUnloadingResp> getUploadingList() {
+        return loadingMapper.toLoadingUnloadingRespFromLoadingEntity(loadingRepository.findByStatusOrderByIdDesc(LoadingStatus.UNLOADING));
+    }
+
+    @Override
+    public LoadingMaterialWeightResp getLoadingMaterialWeight(Long id) {
+        Double totalWeight = 0.0;
+        String unit = "";
+
+        Optional<LoadingEntity> loading = loadingRepository.findById(id);
+
+        if(loading.isPresent()) {
+            List<LoadingMaterialEntity> materials = loading.get().getLoadingMaterial();
+            if(Objects.nonNull(materials)) {
+                for(LoadingMaterialEntity material : materials) {
+                    totalWeight+= material.getLoadedWeight();
+                    unit = material.getMaterialUnit();
+                }
+            }
+        }
+        return loadingMapper.toLoadingMaterialWeightResp(totalWeight, unit);
     }
 
     private String generateLrNumber(Long companyId) {

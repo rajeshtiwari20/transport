@@ -2,7 +2,10 @@ package com.jaijobner.transport_new.controller;
 
 import com.jaijobner.transport_new.config.JwtUtils;
 import com.jaijobner.transport_new.dto.ApiResponse;
-import com.jaijobner.transport_new.dto.auth.*;
+import com.jaijobner.transport_new.dto.auth.ForgotPasswordRequest;
+import com.jaijobner.transport_new.dto.auth.SignupRequest;
+import com.jaijobner.transport_new.dto.auth.LoginRequest;
+import com.jaijobner.transport_new.dto.auth.ResetPasswordRequest;
 
 import com.jaijobner.transport_new.entity.auth.User;
 import com.jaijobner.transport_new.repository.UserRepository;
@@ -18,7 +21,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;

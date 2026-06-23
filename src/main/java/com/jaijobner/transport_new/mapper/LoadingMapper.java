@@ -1,10 +1,17 @@
 package com.jaijobner.transport_new.mapper;
 
 import com.jaijobner.transport_new.dto.loading.*;
-import com.jaijobner.transport_new.entity.*;
+import com.jaijobner.transport_new.entity.LoadingEntity;
+import com.jaijobner.transport_new.entity.Company;
+import com.jaijobner.transport_new.entity.PartyEntity;
+import com.jaijobner.transport_new.entity.TruckEntity;
+import com.jaijobner.transport_new.entity.LoadingMaterialEntity;
+import com.jaijobner.transport_new.entity.LoadingDetailsEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring", imports = {com.jaijobner.transport_new.enums.LoadingStatus.class})
 public interface LoadingMapper {
@@ -58,6 +65,18 @@ public interface LoadingMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "id", ignore = true)
     void toLoadingEntityFromLoadingUpdateReq(LoadingUpdateReq req, Company company, TruckEntity truck, PartyEntity consignee, PartyEntity consignor, @MappingTarget LoadingEntity entity);
+
+    List<LoadingUnloadingResp> toLoadingUnloadingRespFromLoadingEntity(List<LoadingEntity> entity);
+
+    @Mapping(target = "companyId", source = "company.id")
+    @Mapping(target = "truckId", source = "truck.id")
+    @Mapping(target = "consigneeId", source = "consignee.id")
+    @Mapping(target = "consignorId", source = "consignor.id")
+    LoadingUnloadingResp toLoadingUnloadingResp(LoadingEntity entity);
+
+    @Mapping(target = "loadedWeight", source = "totalWeight")
+    @Mapping(target = "unit", source = "unit")
+    LoadingMaterialWeightResp toLoadingMaterialWeightResp(Double totalWeight, String unit);
 
 
 }

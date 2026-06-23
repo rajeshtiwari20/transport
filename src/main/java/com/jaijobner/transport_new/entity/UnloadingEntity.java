@@ -12,16 +12,17 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
-import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
-@Table(name = "loading_details")
+@Table(name = "unloadings")
+
 @Data
-public class LoadingDetailsEntity {
+public class UnloadingEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,51 +32,47 @@ public class LoadingDetailsEntity {
     private LoadingEntity loading;
 
     @Column(nullable = false)
-    private String fromName;
+    private String lrNumber;
 
     @Column(nullable = false)
-    private String toName;
-
-    @Column(nullable = false)
-    private String transportMode;
-
-    @Lob
-    private String consignorAddress;
-
-    @Column(nullable = false)
-    private String consignorGstNum;
-
-    @Lob
-    private String consigneeAddress;
-
-    @Column(nullable = false)
-    private String consigneeGstNum;
-
-    @Lob
-    private String shipByParty;
-
-    @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "driver1_id")
-    private DriverEntity driver1;
-
-    private String driver1Name;
+    private Date unloadingDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "driver2_id")
-    private DriverEntity driver2;
+    @JoinColumn(name = "truck_id")
+    private TruckEntity truck;
 
-    private String driver2Name;
+    @Column(nullable = false)
+    private String truckNumber;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "consignee_id")
+    private PartyEntity consignee;
+
+    @Column(nullable = false)
+    private String consigneeName;
+
+    @Column(nullable = false)
+    private String unit;
+
+    @Column(nullable = false)
+    private Double weight;
+
+    @Column(nullable = false)
+    private Double unloadedWeight;
+
+    private Double changeInWeight;
+
+    private Double rate;
+
+    private Integer grFreight;
 
     @Lob
     private String remarks;
 
     private Double cash;
-    private Double qtyLtr;
-    private Double rate;
+    private Double qty;
+    private Double rateLtr;
     private Double amt;
-
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
