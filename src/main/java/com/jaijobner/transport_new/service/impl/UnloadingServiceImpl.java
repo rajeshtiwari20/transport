@@ -86,6 +86,7 @@ public class UnloadingServiceImpl implements UnloadingService {
 
             unloadingRepository.save(unloadingEntity);
             loading.setStatus(LoadingStatus.UNLOADED);
+            loading.setUnloadingId(unloadingEntity.getId());
             loadingRepository.save(loading);
         }
 

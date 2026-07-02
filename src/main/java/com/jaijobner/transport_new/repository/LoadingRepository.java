@@ -12,4 +12,6 @@ public interface LoadingRepository extends JpaRepository<LoadingEntity, Long>, J
     Optional<LoadingEntity> findFirstByCompanyIdOrderByIdDesc(Long companyId);
 
     List<LoadingEntity> findByStatusOrderByIdDesc(LoadingStatus status);
+
+    LoadingEntity findByUnloadingId(Long unloadingId);
 }

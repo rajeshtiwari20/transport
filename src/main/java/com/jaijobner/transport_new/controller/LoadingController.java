@@ -121,4 +121,17 @@ public class LoadingController {
             return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while retrieving the unloading material"));
         }
     }
+
+    @GetMapping("/unloaded/{unloadingId}")
+    public ResponseEntity<ApiResponse<LoadingUnloadingResp>> getLoadingByUnloadingId(@PathVariable Long unloadingId) {
+        if(!SecurityUtils.isAuthenticated()) {
+            return ResponseEntity.status(401).body(ApiResponse.fail("Unauthorized"));
+        }
+
+        try {
+            return ResponseEntity.ok(ApiResponse.success("Unloaded Loading retrieved successfully", loadingService.getLoadingByUnloadingId(unloadingId)));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while retrieving the unloaded loading"));
+        }
+    }
 }

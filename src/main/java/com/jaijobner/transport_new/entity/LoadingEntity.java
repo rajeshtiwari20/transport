@@ -82,6 +82,8 @@ public class LoadingEntity {
     @Column(nullable = false)
     private LoadingStatus status;
 
+    private Long unloadingId;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

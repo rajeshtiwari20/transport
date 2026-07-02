@@ -26,4 +26,6 @@ public interface LoadingService {
     List<LoadingUnloadingResp> getUploadingList();
 
     LoadingMaterialWeightResp getLoadingMaterialWeight(Long id);
+
+    LoadingUnloadingResp getLoadingByUnloadingId(Long unloadingId);
 }

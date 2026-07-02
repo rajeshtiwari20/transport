@@ -232,6 +232,12 @@ public class LoadingServiceImpl implements LoadingService {
         return loadingMapper.toLoadingMaterialWeightResp(totalWeight, unit);
     }
 
+    @Override
+    public LoadingUnloadingResp getLoadingByUnloadingId(Long unloadingId) {
+        LoadingEntity loading = loadingRepository.findByUnloadingId(unloadingId);
+        return loadingMapper.toLoadingUnloadingResp(loading);
+    }
+
     private String generateLrNumber(Long companyId) {
         Optional<LoadingEntity> lastLoadingEntry = loadingRepository.findFirstByCompanyIdOrderByIdDesc(companyId);
         if(lastLoadingEntry.isPresent()) {
