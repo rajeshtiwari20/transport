@@ -81,10 +81,10 @@ public class LoadingServiceImpl implements LoadingService {
             }
 
             if (req.getStartDate() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), req.getStartDate()));
+                predicates.add(cb.greaterThanOrEqualTo(root.get("lrDate"), req.getStartDate()));
             }
             if (req.getEndDate() != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), req.getEndDate()));
+                predicates.add(cb.lessThanOrEqualTo(root.get("lrDate"), req.getEndDate()));
             }
 
             return predicates.isEmpty() ? cb.conjunction() : cb.and(predicates.toArray(new Predicate[0]));
@@ -223,7 +223,9 @@ public class LoadingServiceImpl implements LoadingService {
             if(Objects.nonNull(materials)) {
                 for(LoadingMaterialEntity material : materials) {
                     totalWeight+= material.getLoadedWeight();
-                    unit = material.getMaterialUnit();
+                    if(unit.isEmpty()) {
+                        unit = material.getMaterialUnit();
+                    }
                 }
             }
         }

@@ -1,0 +1,28 @@
+package com.jaijobner.transport_new.service.impl;
+
+import com.jaijobner.transport_new.dto.report.ReportReq;
+import com.jaijobner.transport_new.dto.report.TankerWiseReportResp;
+import com.jaijobner.transport_new.entity.report.TankerWiseReportEntity;
+import com.jaijobner.transport_new.mapper.ReportMapper;
+import com.jaijobner.transport_new.repository.TankerWiseReportRepository;
+import com.jaijobner.transport_new.service.ReportService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class ReportServiceImpl implements ReportService {
+    private final TankerWiseReportRepository tankerWiseReportRepository;
+    private final ReportMapper reportMapper;
+
+    @Override
+    public List<TankerWiseReportResp> getTankerWiseReport(ReportReq req) {
+        LocalDate startDate = req.getStartDate();
+        LocalDate endDate = req.getEndDate();
+        List<TankerWiseReportEntity> tankerWiseReportEntities = tankerWiseReportRepository.findByLrDateBetween(startDate, endDate);
+        return reportMapper.toTankerWiseReportRespFromTankerWiseReportEntity(tankerWiseReportEntities);
+    }
+}
