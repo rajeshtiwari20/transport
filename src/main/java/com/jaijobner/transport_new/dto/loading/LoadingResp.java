@@ -13,5 +13,6 @@ public class LoadingResp {
     private String truckNumber;
     private String consigneeName;
     private String consignorName;
+    private Long unloadingId;
     private String status;
 }

@@ -4,6 +4,7 @@ import com.jaijobner.transport_new.entity.auth.PasswordResetToken;
 import com.jaijobner.transport_new.entity.auth.User;
 import com.jaijobner.transport_new.repository.PasswordResetTokenRepository;
 import com.jaijobner.transport_new.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,9 +25,11 @@ public class PasswordResetService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Transactional
     public void createPasswordResetTokenForUser(String email) throws Exception {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new Exception("User not found"));
+        tokenRepository.deleteByUser(user);
         String token = UUID.randomUUID().toString();
         LocalDateTime expiry = LocalDateTime.now().plusMinutes(30);
         PasswordResetToken resetToken = new PasswordResetToken(token, user, expiry);
