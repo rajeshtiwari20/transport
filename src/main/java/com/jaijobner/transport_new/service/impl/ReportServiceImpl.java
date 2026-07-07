@@ -7,6 +7,8 @@ import com.jaijobner.transport_new.mapper.ReportMapper;
 import com.jaijobner.transport_new.repository.TankerWiseReportRepository;
 import com.jaijobner.transport_new.service.ReportService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,33 +23,35 @@ public class ReportServiceImpl implements ReportService {
     private final ReportMapper reportMapper;
 
     @Override
-    public List<TankerWiseReportResp> getTankerWiseReport(ReportReq req) {
+    public Page<TankerWiseReportResp> getTankerWiseReport(ReportReq req) {
         LocalDate startDate = req.getStartDate();
         LocalDate endDate = req.getEndDate();
-        List<TankerWiseReportEntity> tankerWiseReportEntities;
         boolean fetchAll = req.getPageSize() != null && req.getPageSize() == -1;
 
         if (fetchAll) {
+            List<TankerWiseReportEntity> tankerWiseReportEntities;
             if (req.getTruckNumber() != null) {
                 tankerWiseReportEntities = tankerWiseReportRepository.findByLrDateBetweenAndTruckNumber(startDate, endDate, req.getTruckNumber());
             } else {
                 tankerWiseReportEntities = tankerWiseReportRepository.findByLrDateBetween(startDate, endDate);
             }
-        } else {
-            int pageNo = req.getPageNo() != null ? req.getPageNo() : 1;
-            int pageSize = req.getPageSize() != null ? req.getPageSize() : 10;
-            Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
-
-            if (req.getTruckNumber() != null) {
-                tankerWiseReportEntities = tankerWiseReportRepository
-                        .findByLrDateBetweenAndTruckNumber(startDate, endDate, req.getTruckNumber(), pageable)
-                        .getContent();
-            } else {
-                tankerWiseReportEntities = tankerWiseReportRepository
-                        .findByLrDateBetween(startDate, endDate, pageable)
-                        .getContent();
-            }
+            List<TankerWiseReportResp> content = reportMapper.toTankerWiseReportRespFromTankerWiseReportEntity(tankerWiseReportEntities);
+            int total = content.size();
+            Pageable pageable = PageRequest.of(0, Math.max(total, 1));
+            return new PageImpl<>(content, pageable, total);
         }
-        return reportMapper.toTankerWiseReportRespFromTankerWiseReportEntity(tankerWiseReportEntities);
+
+        int pageNo = req.getPageNo() != null ? req.getPageNo() : 1;
+        int pageSize = req.getPageSize() != null ? req.getPageSize() : 10;
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+
+        if (req.getTruckNumber() != null) {
+            return tankerWiseReportRepository
+                    .findByLrDateBetweenAndTruckNumber(startDate, endDate, req.getTruckNumber(), pageable)
+                    .map(reportMapper::toTankerWiseReportResp);
+        }
+        return tankerWiseReportRepository
+                .findByLrDateBetween(startDate, endDate, pageable)
+                .map(reportMapper::toTankerWiseReportResp);
     }
 }

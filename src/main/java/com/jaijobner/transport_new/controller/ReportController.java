@@ -7,13 +7,12 @@ import com.jaijobner.transport_new.service.ReportService;
 import com.jaijobner.transport_new.utils.SecurityUtils;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/report")
@@ -22,7 +21,7 @@ public class ReportController {
     private ReportService reportService;
 
     @PostMapping("/tankerwise")
-    public ResponseEntity<ApiResponse<List<TankerWiseReportResp>>> getTankerWiseReport(@Valid @RequestBody ReportReq req) {
+    public ResponseEntity<ApiResponse<Page<TankerWiseReportResp>>> getTankerWiseReport(@Valid @RequestBody ReportReq req) {
         if(!SecurityUtils.isAuthenticated()) {
             return ResponseEntity.status(401).body(ApiResponse.fail("Unauthorized"));
         }
