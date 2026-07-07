@@ -6,10 +6,12 @@ import com.jaijobner.transport_new.dto.bill.BillResp;
 import com.jaijobner.transport_new.dto.bill.BillWriteReq;
 import com.jaijobner.transport_new.entity.BillDetailEntity;
 import com.jaijobner.transport_new.entity.BillEntity;
+import com.jaijobner.transport_new.entity.UnloadingEntity;
 import com.jaijobner.transport_new.mapper.BillDetailMapper;
 import com.jaijobner.transport_new.mapper.BillMapper;
 import com.jaijobner.transport_new.repository.BillDetailRepository;
 import com.jaijobner.transport_new.repository.BillRepository;
+import com.jaijobner.transport_new.repository.UnloadingRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -34,6 +37,9 @@ public class BillService {
 
     @Autowired
     private BillDetailRepository billDetailRepository;
+
+    @Autowired
+    private UnloadingRepository unloadingRepository;
 
     @Autowired
     private BillMapper billMapper;
@@ -73,7 +79,10 @@ public class BillService {
 
     @Transactional
     public void createBill(BillWriteReq req) {
+        UnloadingEntity unloading = resolveUnloadingForBilling(req.getUnloadingId());
+
         BillEntity billEntity = billMapper.toBillEntity(req);
+        billEntity.setUnloading(unloading);
         BillEntity savedBill = billRepository.save(billEntity);
 
         List<BillDetailEntity> details = req.getBillDetailReqList().stream()
@@ -81,6 +90,9 @@ public class BillService {
                 .peek(detail -> detail.setBill(savedBill))
                 .toList();
         billDetailRepository.saveAll(details);
+
+        unloading.setBilledAt(LocalDateTime.now());
+        unloadingRepository.save(unloading);
     }
 
     @Transactional(readOnly = true)
@@ -95,6 +107,7 @@ public class BillService {
         BillEntity billEntity = billRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Bill not found with id: " + id));
 
+        updateBillUnloading(billEntity, req.getUnloadingId());
         billMapper.updateBillEntity(req, billEntity);
         billRepository.save(billEntity);
 
@@ -117,5 +130,33 @@ public class BillService {
                 .toList();
 
         billDetailRepository.saveAll(details);
+    }
+
+    private void updateBillUnloading(BillEntity billEntity, Long unloadingId) {
+        UnloadingEntity currentUnloading = billEntity.getUnloading();
+        if (currentUnloading != null && currentUnloading.getId().equals(unloadingId)) {
+            return;
+        }
+
+        if (currentUnloading != null) {
+            currentUnloading.setBilledAt(null);
+            unloadingRepository.save(currentUnloading);
+        }
+
+        UnloadingEntity newUnloading = resolveUnloadingForBilling(unloadingId);
+        newUnloading.setBilledAt(LocalDateTime.now());
+        billEntity.setUnloading(newUnloading);
+        unloadingRepository.save(newUnloading);
+    }
+
+    private UnloadingEntity resolveUnloadingForBilling(Long unloadingId) {
+        UnloadingEntity unloading = unloadingRepository.findById(unloadingId)
+                .orElseThrow(() -> new EntityNotFoundException("Unloading not found with id: " + unloadingId));
+
+        if (unloading.getBilledAt() != null) {
+            throw new IllegalStateException("Unloading is already billed with id: " + unloadingId);
+        }
+
+        return unloading;
     }
 }

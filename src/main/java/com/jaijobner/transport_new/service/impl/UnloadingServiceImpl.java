@@ -39,6 +39,15 @@ public class UnloadingServiceImpl implements UnloadingService {
 
     @Override
     public Page<UnloadingResp> getUnloadings(UnloadingReq req) {
+        return findUnloadings(req, false);
+    }
+
+    @Override
+    public Page<UnloadingResp> getNonBilledUnloadings(UnloadingReq req) {
+        return findUnloadings(req, true);
+    }
+
+    private Page<UnloadingResp> findUnloadings(UnloadingReq req, boolean nonBilledOnly) {
         Sort sort = req.getSortDirection().equalsIgnoreCase(Sort.Direction.DESC.name())
                 ? Sort.by(req.getSortBy()).descending()
                 : Sort.by(req.getSortBy()).ascending();
@@ -47,6 +56,10 @@ public class UnloadingServiceImpl implements UnloadingService {
 
         Specification<UnloadingEntity> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            if (nonBilledOnly) {
+                predicates.add(cb.isNull(root.get("billedAt")));
+            }
 
             if (req.getSearchTerm() != null && !req.getSearchTerm().trim().isEmpty()) {
                 String pattern = "%" + req.getSearchTerm().trim().toLowerCase() + "%";

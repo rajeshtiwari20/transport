@@ -16,4 +16,8 @@ public interface TankerWiseReportRepository extends JpaRepository<TankerWiseRepo
     List<TankerWiseReportEntity> findByLrDateBetweenAndTruckNumber(LocalDate startDate, LocalDate endDate, String truckNumber);
 
     Page<TankerWiseReportEntity> findByLrDateBetweenAndTruckNumber(LocalDate startDate, LocalDate endDate, String truckNumber, Pageable pageable);
+
+    List<TankerWiseReportEntity> findByLrDateBetweenAndConsignorName(LocalDate startDate, LocalDate endDate, String consignorName);
+
+    Page<TankerWiseReportEntity> findByLrDateBetweenAndConsignorName(LocalDate startDate, LocalDate endDate, String consignorName, Pageable pageable);
 }

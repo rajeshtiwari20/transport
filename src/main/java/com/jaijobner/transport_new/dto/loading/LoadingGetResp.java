@@ -3,7 +3,6 @@ package com.jaijobner.transport_new.dto.loading;
 import lombok.Data;
 
 import java.util.Date;
-import java.util.List;
 
 @Data
 public class LoadingGetResp {
@@ -19,7 +18,7 @@ public class LoadingGetResp {
     private String consignorName;
     private String status;
     private LoadingDetailsGetResp loadingDetails;
-    private List<LoadingMaterialGetResp> loadingMaterial;
+    private LoadingMaterialGetResp loadingMaterial;
 
     @Data
     public static class LoadingDetailsGetResp {

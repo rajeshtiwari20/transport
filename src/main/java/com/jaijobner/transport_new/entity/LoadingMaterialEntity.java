@@ -8,7 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.Data;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
@@ -26,8 +26,8 @@ public class LoadingMaterialEntity {
     private Long id;
 
     @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "loading_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "loading_id", unique = true)
     private LoadingEntity loading;
 
     @Column(nullable = false)
@@ -49,8 +49,8 @@ public class LoadingMaterialEntity {
 
     private Date invoiceDate;
 
-    @Column(nullable = false)
-    private Double invoiceValue;
+    @Column(columnDefinition = "DOUBLE DEFAULT 0")
+    private Double invoiceValue = 0.0;
 
     private String eway;
     private Date ewayDate;

@@ -13,6 +13,7 @@ public class BillGetResp {
     private String freight;
     private Double shortage;
     private Double total;
+    private Long unloadingId;
     private List<BillDetailGetResp> billDetailList;
 
     @Data

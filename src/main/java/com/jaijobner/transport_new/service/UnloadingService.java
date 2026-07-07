@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 public interface UnloadingService {
     Page<UnloadingResp> getUnloadings(UnloadingReq req);
 
+    Page<UnloadingResp> getNonBilledUnloadings(UnloadingReq req);
+
     void createUnloading(UnloadingWriteReq req);
 
     UnloadingGetResp getUnloading(Long id);

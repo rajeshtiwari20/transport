@@ -38,6 +38,19 @@ public class UnloadingController {
         }
     }
 
+    @PostMapping("/nonbilled-list")
+    public ResponseEntity<ApiResponse<Page<UnloadingResp>>> getNonBilledUnloadings(@Valid @RequestBody UnloadingReq req) {
+        if(!SecurityUtils.isAuthenticated()) {
+            return ResponseEntity.status(401).body(ApiResponse.fail("Unauthorized"));
+        }
+
+        try {
+            return ResponseEntity.ok(ApiResponse.success("Non-billed unloadings retrieved successfully", unloadingService.getNonBilledUnloadings(req)));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while retrieving non-billed unloadings"));
+        }
+    }
+
 
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> createUnloading(@Valid @RequestBody UnloadingWriteReq req) {

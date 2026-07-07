@@ -48,6 +48,10 @@ public class BillController {
         try {
             billService.createBill(req);
             return ResponseEntity.ok(ApiResponse.success("Bill created successfully", null));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body(ApiResponse.fail(e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(400).body(ApiResponse.fail(e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while creating the bill"));
         }
@@ -78,7 +82,9 @@ public class BillController {
             billService.updateBill(id, req);
             return ResponseEntity.ok(ApiResponse.success("Bill updated successfully", null));
         } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(404).body(ApiResponse.fail("Bill not found"));
+            return ResponseEntity.status(404).body(ApiResponse.fail(e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(400).body(ApiResponse.fail(e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while updating the bill"));
         }

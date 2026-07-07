@@ -12,6 +12,7 @@ public class ReportReq {
     @NotNull(message = "End Date is required")
     private LocalDate endDate;
     private String truckNumber;
+    private String partyName;
     private Integer pageNo = 1;
     private Integer pageSize = 10;
 }

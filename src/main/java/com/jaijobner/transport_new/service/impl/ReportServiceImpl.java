@@ -24,17 +24,10 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public Page<TankerWiseReportResp> getTankerWiseReport(ReportReq req) {
-        LocalDate startDate = req.getStartDate();
-        LocalDate endDate = req.getEndDate();
         boolean fetchAll = req.getPageSize() != null && req.getPageSize() == -1;
 
         if (fetchAll) {
-            List<TankerWiseReportEntity> tankerWiseReportEntities;
-            if (req.getTruckNumber() != null) {
-                tankerWiseReportEntities = tankerWiseReportRepository.findByLrDateBetweenAndTruckNumber(startDate, endDate, req.getTruckNumber());
-            } else {
-                tankerWiseReportEntities = tankerWiseReportRepository.findByLrDateBetween(startDate, endDate);
-            }
+            List<TankerWiseReportEntity> tankerWiseReportEntities = findAllEntities(req);
             List<TankerWiseReportResp> content = reportMapper.toTankerWiseReportRespFromTankerWiseReportEntity(tankerWiseReportEntities);
             int total = content.size();
             Pageable pageable = PageRequest.of(0, Math.max(total, 1));
@@ -45,13 +38,32 @@ public class ReportServiceImpl implements ReportService {
         int pageSize = req.getPageSize() != null ? req.getPageSize() : 10;
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
 
+        return findEntities(req, pageable).map(reportMapper::toTankerWiseReportResp);
+    }
+
+    private List<TankerWiseReportEntity> findAllEntities(ReportReq req) {
+        LocalDate startDate = req.getStartDate();
+        LocalDate endDate = req.getEndDate();
+
         if (req.getTruckNumber() != null) {
-            return tankerWiseReportRepository
-                    .findByLrDateBetweenAndTruckNumber(startDate, endDate, req.getTruckNumber(), pageable)
-                    .map(reportMapper::toTankerWiseReportResp);
+            return tankerWiseReportRepository.findByLrDateBetweenAndTruckNumber(startDate, endDate, req.getTruckNumber());
         }
-        return tankerWiseReportRepository
-                .findByLrDateBetween(startDate, endDate, pageable)
-                .map(reportMapper::toTankerWiseReportResp);
+        if (req.getPartyName() != null) {
+            return tankerWiseReportRepository.findByLrDateBetweenAndConsignorName(startDate, endDate, req.getPartyName());
+        }
+        return tankerWiseReportRepository.findByLrDateBetween(startDate, endDate);
+    }
+
+    private Page<TankerWiseReportEntity> findEntities(ReportReq req, Pageable pageable) {
+        LocalDate startDate = req.getStartDate();
+        LocalDate endDate = req.getEndDate();
+
+        if (req.getTruckNumber() != null) {
+            return tankerWiseReportRepository.findByLrDateBetweenAndTruckNumber(startDate, endDate, req.getTruckNumber(), pageable);
+        }
+        if (req.getPartyName() != null) {
+            return tankerWiseReportRepository.findByLrDateBetweenAndConsignorName(startDate, endDate, req.getPartyName(), pageable);
+        }
+        return tankerWiseReportRepository.findByLrDateBetween(startDate, endDate, pageable);
     }
 }

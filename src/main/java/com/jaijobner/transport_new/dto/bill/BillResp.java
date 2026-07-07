@@ -12,4 +12,5 @@ public class BillResp {
     private String freight;
     private Double shortage;
     private Double total;
+    private Long unloadingId;
 }

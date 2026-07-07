@@ -8,7 +8,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
@@ -22,9 +21,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Table(name = "loadings", uniqueConstraints =  @UniqueConstraint(columnNames = {"company_id", "lr_number"}))
@@ -38,9 +35,8 @@ public class LoadingEntity {
     private LoadingDetailsEntity loadingDetails;
 
     @ToString.Exclude
-    // Enable orphanRemoval so that removing a child from the collection will delete it from DB
-    @OneToMany(mappedBy = "loading", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<LoadingMaterialEntity> loadingMaterial = new ArrayList<>();
+    @OneToOne(mappedBy = "loading", cascade = CascadeType.ALL, orphanRemoval = true)
+    private LoadingMaterialEntity loadingMaterial;
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)

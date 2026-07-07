@@ -37,9 +37,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -131,11 +129,9 @@ public class LoadingServiceImpl implements LoadingService {
             loadingDetailsEntity.setLoading(savedLoading);
             loadingDetailsRepository.save(loadingDetailsEntity);
 
-            List<LoadingMaterialEntity> materials = req.getLoadingMaterialReqList().stream()
-                    .map(loadingMaterialMapper::toLoadingMaterialEntity)
-                    .peek(mat -> mat.setLoading(savedLoading))
-                    .toList();
-            loadingMaterialRepository.saveAll(materials);
+            LoadingMaterialEntity material = loadingMaterialMapper.toLoadingMaterialEntity(req.getLoadingMaterialReq());
+            material.setLoading(savedLoading);
+            loadingMaterialRepository.save(material);
 
             log.info("Loading creation completed for LR: {}", lrNumber);
         } catch (Exception e) {
@@ -183,21 +179,10 @@ public class LoadingServiceImpl implements LoadingService {
         loadingDetailsMapper.toLoadingDetailsEntityFromLoadingUpdateReq(req, driver1, driver2, loadingDetailsEntity);
         loadingDetailsRepository.save(loadingDetailsEntity);
 
-        //saving material
-        Set<Long> incomingChildIds = req.getLoadingMaterialReqList().stream()
-                .map(LoadingUpdateReq.LoadingMaterialReq::getId)
-                .filter(Objects::nonNull)
-                .filter(childId -> childId > 0)
-                .collect(Collectors.toSet());
-
-        List<LoadingMaterialEntity> materials = req.getLoadingMaterialReqList().stream()
-                .map(loadingMaterialMapper::toLoadingMaterialEntity)
-                .peek(mat -> mat.setLoading(loadingEntity))
-                .toList();
-
-        loadingEntity.getLoadingMaterial().removeIf(material -> !incomingChildIds.contains(material.getId()));
-
-        loadingMaterialRepository.saveAll(materials);
+        LoadingMaterialEntity material = loadingEntity.getLoadingMaterial();
+        loadingMaterialMapper.toLoadingMaterialEntityFromLoadingUpdateReq(req.getLoadingMaterialReq(), material);
+        material.setLoading(loadingEntity);
+        loadingMaterialRepository.save(material);
 
     }
 
@@ -218,15 +203,11 @@ public class LoadingServiceImpl implements LoadingService {
 
         Optional<LoadingEntity> loading = loadingRepository.findById(id);
 
-        if(loading.isPresent()) {
-            List<LoadingMaterialEntity> materials = loading.get().getLoadingMaterial();
-            if(Objects.nonNull(materials)) {
-                for(LoadingMaterialEntity material : materials) {
-                    totalWeight+= material.getLoadedWeight();
-                    if(unit.isEmpty()) {
-                        unit = material.getMaterialUnit();
-                    }
-                }
+        if (loading.isPresent()) {
+            LoadingMaterialEntity material = loading.get().getLoadingMaterial();
+            if (Objects.nonNull(material)) {
+                totalWeight = material.getLoadedWeight();
+                unit = material.getMaterialUnit();
             }
         }
         return loadingMapper.toLoadingMaterialWeightResp(totalWeight, unit);

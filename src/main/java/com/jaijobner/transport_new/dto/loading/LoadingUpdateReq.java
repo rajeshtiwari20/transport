@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.util.Date;
-import java.util.List;
 
 @Data
 public class LoadingUpdateReq {
@@ -55,8 +54,8 @@ public class LoadingUpdateReq {
     private Double rate;
     private Double amt;
 
-    @NotEmpty(message = "At least one loading material is required")
-    private List<LoadingMaterialReq> loadingMaterialReqList;
+    @NotNull(message = "Loading material is required")
+    private LoadingMaterialReq loadingMaterialReq;
 
     @Data
     public static class LoadingMaterialReq {
@@ -80,7 +79,6 @@ public class LoadingUpdateReq {
 
         private Date invoiceDate;
 
-        @NotNull(message = "Invoice value is required")
         private Double invoiceValue;
 
         private String eway;
