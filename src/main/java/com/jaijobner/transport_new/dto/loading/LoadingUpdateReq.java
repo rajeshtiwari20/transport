@@ -76,10 +76,8 @@ public class LoadingUpdateReq {
         @NotNull(message = "Total Rate is required")
         private Double total;
 
-        @NotEmpty(message = "Invoice number is required")
         private String invoiceNum;
 
-        @NotEmpty(message = "Invoice date is required")
         private Date invoiceDate;
 
         @NotNull(message = "Invoice value is required")

@@ -45,10 +45,8 @@ public class LoadingMaterialEntity {
     @Column(nullable = false)
     private Double total;
 
-    @Column(nullable = false)
     private String invoiceNum;
 
-    @Column(nullable = false)
     private Date invoiceDate;
 
     @Column(nullable = false)
