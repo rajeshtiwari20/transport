@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface TankerWiseReportRepository extends JpaRepository<TankerWiseReportEntity, Long> {
     List<TankerWiseReportEntity> findByLrDateBetween(LocalDate startDate, LocalDate endDate);
+
+    List<TankerWiseReportEntity> findByLrDateBetweenAndTruckNumber(LocalDate startDate, LocalDate endDate, String truckNumber);
 }

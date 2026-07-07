@@ -22,7 +22,12 @@ public class ReportServiceImpl implements ReportService {
     public List<TankerWiseReportResp> getTankerWiseReport(ReportReq req) {
         LocalDate startDate = req.getStartDate();
         LocalDate endDate = req.getEndDate();
-        List<TankerWiseReportEntity> tankerWiseReportEntities = tankerWiseReportRepository.findByLrDateBetween(startDate, endDate);
+        List<TankerWiseReportEntity> tankerWiseReportEntities;
+        if (req.getTruckNumber() != null) {
+            tankerWiseReportEntities = tankerWiseReportRepository.findByLrDateBetweenAndTruckNumber(startDate, endDate, req.getTruckNumber());
+        } else {
+            tankerWiseReportEntities = tankerWiseReportRepository.findByLrDateBetween(startDate, endDate);
+        }
         return reportMapper.toTankerWiseReportRespFromTankerWiseReportEntity(tankerWiseReportEntities);
     }
 }

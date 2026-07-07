@@ -11,4 +11,5 @@ public class ReportReq {
     private LocalDate startDate;
     @NotNull(message = "End Date is required")
     private LocalDate endDate;
+    private String truckNumber;
 }
