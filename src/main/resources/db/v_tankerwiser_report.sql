@@ -17,7 +17,9 @@ SELECT
     `lm`.`material_name` AS `material_name`,
     `u`.`weight` AS `weight`,
     `u`.`unloaded_weight` AS `unloaded_weight`,
-    `u`.`change_in_weight` AS `difference`
+    `u`.`change_in_weight` AS `difference`,
+    `l`.`freight_rate` AS `freight_rate`,
+    `l`.`freight_amount` AS `freight_amount`
 FROM `loadings` `l`
 INNER JOIN `unloadings` `u` ON `l`.`id` = `u`.`loading_id`
 LEFT JOIN `loading_details` `ld` ON `l`.`id` = `ld`.`loading_id`

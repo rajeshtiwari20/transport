@@ -41,4 +41,8 @@ public class TankerWiseReportEntity {
     private Double unloadedWeight;
 
     private Double difference;
+
+    private Double freightRate;
+
+    private Double freightAmount;
 }

@@ -19,4 +19,6 @@ public class TankerWiseReportResp {
     private Double weight;
     private Double unloadedWeight;
     private Double difference;
+    private Double freightRate;
+    private Double freightAmount;
 }
