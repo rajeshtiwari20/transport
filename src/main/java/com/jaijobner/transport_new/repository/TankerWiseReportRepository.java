@@ -9,15 +9,15 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface TankerWiseReportRepository extends JpaRepository<TankerWiseReportEntity, Long> {
-    List<TankerWiseReportEntity> findByLrDateBetween(LocalDate startDate, LocalDate endDate);
+    List<TankerWiseReportEntity> findByUnloadingDateBetween(LocalDate startDate, LocalDate endDate);
 
-    Page<TankerWiseReportEntity> findByLrDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
+    Page<TankerWiseReportEntity> findByUnloadingDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
 
-    List<TankerWiseReportEntity> findByLrDateBetweenAndTruckNumber(LocalDate startDate, LocalDate endDate, String truckNumber);
+    List<TankerWiseReportEntity> findByUnloadingDateBetweenAndTruckNumber(LocalDate startDate, LocalDate endDate, String truckNumber);
 
-    Page<TankerWiseReportEntity> findByLrDateBetweenAndTruckNumber(LocalDate startDate, LocalDate endDate, String truckNumber, Pageable pageable);
+    Page<TankerWiseReportEntity> findByUnloadingDateBetweenAndTruckNumber(LocalDate startDate, LocalDate endDate, String truckNumber, Pageable pageable);
 
-    List<TankerWiseReportEntity> findByLrDateBetweenAndConsignorName(LocalDate startDate, LocalDate endDate, String consignorName);
+    List<TankerWiseReportEntity> findByUnloadingDateBetweenAndConsignorName(LocalDate startDate, LocalDate endDate, String consignorName);
 
-    Page<TankerWiseReportEntity> findByLrDateBetweenAndConsignorName(LocalDate startDate, LocalDate endDate, String consignorName, Pageable pageable);
+    Page<TankerWiseReportEntity> findByUnloadingDateBetweenAndConsignorName(LocalDate startDate, LocalDate endDate, String consignorName, Pageable pageable);
 }

@@ -46,12 +46,12 @@ public class ReportServiceImpl implements ReportService {
         LocalDate endDate = req.getEndDate();
 
         if (req.getTruckNumber() != null) {
-            return tankerWiseReportRepository.findByLrDateBetweenAndTruckNumber(startDate, endDate, req.getTruckNumber());
+            return tankerWiseReportRepository.findByUnloadingDateBetweenAndTruckNumber(startDate, endDate, req.getTruckNumber());
         }
         if (req.getPartyName() != null) {
-            return tankerWiseReportRepository.findByLrDateBetweenAndConsignorName(startDate, endDate, req.getPartyName());
+            return tankerWiseReportRepository.findByUnloadingDateBetweenAndConsignorName(startDate, endDate, req.getPartyName());
         }
-        return tankerWiseReportRepository.findByLrDateBetween(startDate, endDate);
+        return tankerWiseReportRepository.findByUnloadingDateBetween(startDate, endDate);
     }
 
     private Page<TankerWiseReportEntity> findEntities(ReportReq req, Pageable pageable) {
@@ -59,11 +59,11 @@ public class ReportServiceImpl implements ReportService {
         LocalDate endDate = req.getEndDate();
 
         if (req.getTruckNumber() != null) {
-            return tankerWiseReportRepository.findByLrDateBetweenAndTruckNumber(startDate, endDate, req.getTruckNumber(), pageable);
+            return tankerWiseReportRepository.findByUnloadingDateBetweenAndTruckNumber(startDate, endDate, req.getTruckNumber(), pageable);
         }
         if (req.getPartyName() != null) {
-            return tankerWiseReportRepository.findByLrDateBetweenAndConsignorName(startDate, endDate, req.getPartyName(), pageable);
+            return tankerWiseReportRepository.findByUnloadingDateBetweenAndConsignorName(startDate, endDate, req.getPartyName(), pageable);
         }
-        return tankerWiseReportRepository.findByLrDateBetween(startDate, endDate, pageable);
+        return tankerWiseReportRepository.findByUnloadingDateBetween(startDate, endDate, pageable);
     }
 }

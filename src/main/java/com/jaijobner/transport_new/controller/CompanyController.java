@@ -3,8 +3,10 @@ package com.jaijobner.transport_new.controller;
 import com.jaijobner.transport_new.dto.ApiResponse;
 import com.jaijobner.transport_new.dto.company.CompanyCompactResp;
 import com.jaijobner.transport_new.dto.company.CompanyCreateReq;
+import com.jaijobner.transport_new.dto.company.CompanyGetResp;
 import com.jaijobner.transport_new.dto.company.CompanyUpdateReq;
 import com.jaijobner.transport_new.entity.Company;
+import com.jaijobner.transport_new.mapper.CompanyMapper;
 import com.jaijobner.transport_new.service.CompanyService;
 import com.jaijobner.transport_new.utils.SecurityUtils;
 import jakarta.validation.Valid;
@@ -28,6 +30,9 @@ public class CompanyController {
     @Autowired
     CompanyService companyService;
 
+    @Autowired
+    CompanyMapper companyMapper;
+
     @GetMapping("")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getCompanies(){
         if(!SecurityUtils.isAuthenticated()) {
@@ -42,7 +47,7 @@ public class CompanyController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Company>> getCompanyById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<CompanyGetResp>> getCompanyById(@PathVariable Long id) {
         if(!SecurityUtils.isAuthenticated()) {
             return ResponseEntity.status(401).body(ApiResponse.fail("Unauthorized"));
         }
@@ -52,7 +57,7 @@ public class CompanyController {
             if (company == null) {
                 return ResponseEntity.status(404).body(ApiResponse.fail("Company not found"));
             }
-            return ResponseEntity.ok(ApiResponse.success("Company retrieved successfully", company));
+            return ResponseEntity.ok(ApiResponse.success("Company retrieved successfully", companyMapper.companyEntityToCompanyGetResp(company)));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(ApiResponse.fail("An error occurred while retrieving company"));
         }

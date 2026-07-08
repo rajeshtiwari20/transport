@@ -1,5 +1,6 @@
 package com.jaijobner.transport_new.entity.report;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -15,18 +16,29 @@ import java.time.LocalDate;
 public class TankerWiseReportEntity {
     @Id
     private Long id;
-    private String lrNumber;
-    private String companyName;
-    private String consigneeName;
-    private String consignorName;
-    private LocalDate lrDate;
+
     private String truckNumber;
-    private String driver1name;
-    private String fromName;
-    private String toName;
-    private Double weight;
-    private Double unloadedWeight;
-    private String unit;
+
     private LocalDate unloadingDate;
-    private Double changeInWeight;
+
+    @Column(name = "driver_name")
+    private String driverName;
+
+    private String lrNumber;
+
+    private String fromName;
+
+    private String toName;
+
+    private String consigneeName;
+
+    private String consignorName;
+
+    private String materialName;
+
+    private Double weight;
+
+    private Double unloadedWeight;
+
+    private Double difference;
 }
