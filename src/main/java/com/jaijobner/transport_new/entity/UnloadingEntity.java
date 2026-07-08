@@ -54,12 +54,13 @@ public class UnloadingEntity {
     @Column(nullable = false)
     private String unit;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "DECIMAL(10,3)")
     private Double weight;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "DECIMAL(10,3)")
     private Double unloadedWeight;
 
+    @Column(columnDefinition = "DECIMAL(10,3)")
     private Double changeInWeight;
 
     private Double rate;

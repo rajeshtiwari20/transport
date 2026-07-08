@@ -53,6 +53,12 @@ public class LoadingEntity {
     @Column(nullable = false)
     private String lrNumber;
 
+    @Column(nullable = false, columnDefinition = "DECIMAL(10,2)")
+    private Double freightRate;
+
+    @Column(nullable = false, columnDefinition = "DECIMAL(10,2)")
+    private Double freightAmount;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "truck_id")
     private TruckEntity truck;

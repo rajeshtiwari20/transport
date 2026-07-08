@@ -26,6 +26,11 @@ public interface LoadingDetailsMapper {
     @Mapping(target = "qtyLtr", source = "req.qtyLtr")
     @Mapping(target = "rate", source = "req.rate")
     @Mapping(target = "amt", source = "req.amt")
+    @Mapping(target = "consigneeAddress", source = "req.consigneeAddress")
+    @Mapping(target = "consignorAddress", source = "req.consignorAddress")
+    @Mapping(target = "consignorGstNum", source = "req.consignorGstNum")
+    @Mapping(target = "consigneeGstNum", source = "req.consigneeGstNum")
+    @Mapping(target = "shipByParty", source = "req.shipByParty")
     LoadingDetailsEntity toLoadingDetailsEntity(LoadingCreateReq req, DriverEntity driver1, DriverEntity driver2);
 
     @Mapping(target = "loading", ignore = true)

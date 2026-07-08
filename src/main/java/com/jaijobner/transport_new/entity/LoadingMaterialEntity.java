@@ -36,7 +36,7 @@ public class LoadingMaterialEntity {
     @Column(nullable = false)
     private String materialUnit;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "DECIMAL(10,3)")
     private Double loadedWeight;
 
     @Column(nullable = false)

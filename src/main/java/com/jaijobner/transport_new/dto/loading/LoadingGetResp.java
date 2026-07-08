@@ -12,6 +12,8 @@ public class LoadingGetResp {
     private Long truckId;
     private Date lrDate;
     private String lrNumber;
+    private Double freightRate;
+    private Double freightAmount;
     private Long consigneeId;
     private Long consignorId;
     private String consigneeName;

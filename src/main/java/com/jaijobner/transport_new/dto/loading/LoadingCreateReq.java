@@ -1,5 +1,7 @@
 package com.jaijobner.transport_new.dto.loading;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.jaijobner.transport_new.utils.FlexibleDoubleDeserializer;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -49,9 +51,24 @@ public class LoadingCreateReq {
 
     private String remarks;
 
+    @JsonDeserialize(using = FlexibleDoubleDeserializer.class)
     private Double cash;
+
+    @NotNull(message = "Freight Rate is required")
+    @JsonDeserialize(using = FlexibleDoubleDeserializer.class)
+    private Double freightRate;
+
+    @NotNull(message = "Freight Amount is required")
+    @JsonDeserialize(using = FlexibleDoubleDeserializer.class)
+    private Double freightAmount;
+
+    @JsonDeserialize(using = FlexibleDoubleDeserializer.class)
     private Double qtyLtr;
+
+    @JsonDeserialize(using = FlexibleDoubleDeserializer.class)
     private Double rate;
+
+    @JsonDeserialize(using = FlexibleDoubleDeserializer.class)
     private Double amt;
 
     @NotNull(message = "Loading material is required")
@@ -66,18 +83,22 @@ public class LoadingCreateReq {
         private String materialUnit;
 
         @NotNull(message = "Loaded Weight is required")
+        @JsonDeserialize(using = FlexibleDoubleDeserializer.class)
         private Double loadedWeight;
 
         @NotNull(message = "Loaded Rate is required")
+        @JsonDeserialize(using = FlexibleDoubleDeserializer.class)
         private Double rate;
 
         @NotNull(message = "Total Rate is required")
+        @JsonDeserialize(using = FlexibleDoubleDeserializer.class)
         private Double total;
 
         private String invoiceNum;
 
         private Date invoiceDate;
 
+        @JsonDeserialize(using = FlexibleDoubleDeserializer.class)
         private Double invoiceValue;
 
         private String eway;

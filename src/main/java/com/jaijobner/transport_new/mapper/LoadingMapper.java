@@ -64,6 +64,7 @@ public interface LoadingMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "lrNumber", ignore = true)
     void toLoadingEntityFromLoadingUpdateReq(LoadingUpdateReq req, Company company, TruckEntity truck, PartyEntity consignee, PartyEntity consignor, @MappingTarget LoadingEntity entity);
 
     List<LoadingUnloadingResp> toLoadingUnloadingRespFromLoadingEntity(List<LoadingEntity> entity);
