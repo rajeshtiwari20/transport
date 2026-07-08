@@ -13,11 +13,11 @@ public interface TankerWiseReportRepository extends JpaRepository<TankerWiseRepo
 
     Page<TankerWiseReportEntity> findByUnloadingDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
 
-    List<TankerWiseReportEntity> findByUnloadingDateBetweenAndTruckNumber(LocalDate startDate, LocalDate endDate, String truckNumber);
+    List<TankerWiseReportEntity> findByUnloadingDateBetweenAndTruckNumberContaining(LocalDate startDate, LocalDate endDate, String truckNumber);
 
-    Page<TankerWiseReportEntity> findByUnloadingDateBetweenAndTruckNumber(LocalDate startDate, LocalDate endDate, String truckNumber, Pageable pageable);
+    Page<TankerWiseReportEntity> findByUnloadingDateBetweenAndTruckNumberContaining(LocalDate startDate, LocalDate endDate, String truckNumber, Pageable pageable);
 
-    List<TankerWiseReportEntity> findByUnloadingDateBetweenAndConsignorName(LocalDate startDate, LocalDate endDate, String consignorName);
+    List<TankerWiseReportEntity> findByUnloadingDateBetweenAndConsignorNameContaining(LocalDate startDate, LocalDate endDate, String consignorName);
 
-    Page<TankerWiseReportEntity> findByUnloadingDateBetweenAndConsignorName(LocalDate startDate, LocalDate endDate, String consignorName, Pageable pageable);
+    Page<TankerWiseReportEntity> findByUnloadingDateBetweenAndConsignorNameContaining(LocalDate startDate, LocalDate endDate, String consignorName, Pageable pageable);
 }
