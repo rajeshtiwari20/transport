@@ -69,10 +69,8 @@ public class LoadingUpdateReq {
         @NotNull(message = "Loaded Weight is required")
         private Double loadedWeight;
 
-        @NotNull(message = "Loaded Rate is required")
         private Double rate;
 
-        @NotNull(message = "Total Rate is required")
         private Double total;
 
         private String invoiceNum;
