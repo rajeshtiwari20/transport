@@ -18,7 +18,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +34,7 @@ public class BillEntity {
     private Year year;
 
     @Column(nullable = false)
-    private Month month;
+    private Integer month;
 
     @Column(nullable = false)
     private LocalDate startDate;

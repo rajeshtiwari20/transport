@@ -93,7 +93,7 @@ public class BillServiceImpl implements BillService {
         LocalDate firstDayOfMonth = LocalDate.now().withDayOfMonth(1);
         LocalDate lastDayOfMonth = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
         Year currentYear = Year.now();
-        Month currentMonth = LocalDate.now().getMonth();
+        int currentMonth = LocalDate.now().getMonthValue();
         PartyEntity consignee = loading.getConsignee();
 
         BillEntity billEntity = billRepository.findByConsigneeAndYearAndMonth(consignee, currentYear, currentMonth)
@@ -112,11 +112,9 @@ public class BillServiceImpl implements BillService {
                     newBill.setConsignee(consignee);
                     newBill.setYear(currentYear);
                     newBill.setMonth(currentMonth);
-                    newBill.setBillNumber("TEMP");
+                    newBill.setBillNumber(generateBillNumber(loading.getCompany()));
                     newBill.setTotalAmount(0.0);
                     BillEntity savedBill = billRepository.save(newBill);
-                    savedBill.setBillNumber(generateBillNumber(loading.getCompany(), savedBill.getId()));
-                    savedBill = billRepository.save(savedBill);
                     log.info("New bill created with ID: {}, bill number: {}", savedBill.getId(), savedBill.getBillNumber());
                     return savedBill;
                 });
@@ -270,7 +268,7 @@ public class BillServiceImpl implements BillService {
                 .reduce(0.0, Double::sum);
 
         double totalFreight = billEntity.getBillDetails().stream()
-                .map(BillDetailEntity::getTotalAmount)
+                .map(BillDetailEntity::getFreight)
                 .filter(Objects::nonNull)
                 .reduce(0.0, Double::sum);
         
@@ -287,7 +285,7 @@ public class BillServiceImpl implements BillService {
         billEntity.setTotalAmount(totalAmount);
     }
 
-    private String generateBillNumber(Company company, Long billId) {
+    private String generateBillNumber(Company company) {
         if (company == null) {
             throw new IllegalStateException("Company is required to generate bill number");
         }
@@ -295,8 +293,21 @@ public class BillServiceImpl implements BillService {
             throw new IllegalStateException("Company abbreviation is not set for company id: " + company.getId());
         }
 
-        String billNumber = company.getAbbr() + "/" + getFinancialYearRange() + "/" + new DecimalFormat("0000").format(billId);
-        log.debug("Generated bill number: {} for company ID: {}, bill ID: {}", billNumber, company.getId(), billId);
+        String prefix = company.getAbbr() + "/" + getFinancialYearRange() + "/";
+        long nextSequence = billRepository.findFirstByBillNumberStartingWithOrderByIdDesc(prefix)
+                .map(BillEntity::getBillNumber)
+                .map(billNumber -> {
+                    try {
+                        return Long.parseLong(billNumber.substring(prefix.length())) + 1;
+                    } catch (NumberFormatException e) {
+                        log.warn("Could not parse bill sequence from bill number: {}", billNumber);
+                        return 1L;
+                    }
+                })
+                .orElse(1L);
+
+        String billNumber = prefix + new DecimalFormat("000").format(nextSequence);
+        log.debug("Generated bill number: {} for company ID: {}", billNumber, company.getId());
         return billNumber;
     }
 
