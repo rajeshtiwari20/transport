@@ -123,18 +123,13 @@ public class BillServiceImpl implements BillService {
 
         BillDetailEntity detail = billDetailMapper.toBillDetailEntityFromLoadingAndUnloading(loading, unloading);
         detail.setBill(billEntity);
+        billEntity.getBillDetails().add(detail);
         billDetailRepository.save(detail);
 
         unloading.setBilledAt(LocalDateTime.now());
         unloadingRepository.save(unloading);
 
-        billEntity.setTotalAmount(billEntity.getBillDetails().stream()
-                .map(BillDetailEntity::getAmount)
-                .reduce(0.0, Double::sum));
-        billEntity.setFreight(billEntity.getBillDetails().stream()
-                .map(BillDetailEntity::getFreight)
-                .reduce(0.0, Double::sum));
-        billEntity.setIsShortage(unloading.getChangeInWeight() != null && unloading.getChangeInWeight() != 0);
+        recalculateBillTotals(billEntity);
         billRepository.save(billEntity);
 
         log.info("Bill detail added to bill ID: {} for unloading ID: {}. Total amount: {}, freight: {}",
@@ -222,6 +217,9 @@ public class BillServiceImpl implements BillService {
 
         billDetailRepository.saveAll(details);
 
+        recalculateBillTotals(billEntity);
+        billRepository.save(billEntity);
+
         log.info("Bill updated successfully with ID: {}", id);
     }
 
@@ -263,6 +261,30 @@ public class BillServiceImpl implements BillService {
         }
 
         return unloading;
+    }
+
+    private void recalculateBillTotals(BillEntity billEntity) {
+        double totalDifference = billEntity.getBillDetails().stream()
+                .map(BillDetailEntity::getDifference)
+                .filter(Objects::nonNull)
+                .reduce(0.0, Double::sum);
+
+        double totalFreight = billEntity.getBillDetails().stream()
+                .map(BillDetailEntity::getTotalAmount)
+                .filter(Objects::nonNull)
+                .reduce(0.0, Double::sum);
+        
+        billEntity.setIsShortage(billEntity.getBillDetails().stream()
+                .anyMatch(billDetail -> billDetail.getDifference() != null && billDetail.getDifference() != 0));
+
+        double variationRate = billEntity.getVariationRate() != null ? billEntity.getVariationRate() : 0.0;
+        double variationAmount = totalDifference * variationRate;
+
+        boolean isShortage = billEntity.getIsShortage() != null && billEntity.getIsShortage();
+        double totalAmount = isShortage ? totalFreight - variationAmount : totalFreight + variationAmount;
+
+        billEntity.setFreight(totalFreight);
+        billEntity.setTotalAmount(totalAmount);
     }
 
     private String generateBillNumber(Company company, Long billId) {
