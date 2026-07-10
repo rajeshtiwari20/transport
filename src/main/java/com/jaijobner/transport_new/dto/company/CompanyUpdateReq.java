@@ -11,6 +11,7 @@ public class CompanyUpdateReq {
     @NotBlank(message = "Company name can not be null")
     private String companyName;
     private String companyCode;
+    private String abbr;
 
     private String contactPersonName;
     private Long contactPersonMobile;

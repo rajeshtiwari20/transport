@@ -12,6 +12,7 @@ public class CompanyGetResp {
     private String contactPersonName;
     private Long contactPersonMobile;
     private String companyCode;
+    private String abbr;
     private CompanyType companyType;
     private String email;
     private Long mobile;

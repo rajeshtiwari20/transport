@@ -73,6 +73,7 @@ public class CompanyController {
             Company companyEntity = new Company();
 
             companyEntity.setCompanyCode(createCompany.getCompanyCode());
+            companyEntity.setAbbr(createCompany.getAbbr());
             companyEntity.setCompanyName(createCompany.getCompanyName());
             companyEntity.setContactPersonName(createCompany.getContactPersonName());
             companyEntity.setContactPersonMobile(createCompany.getContactPersonMobile());
@@ -106,6 +107,7 @@ public class CompanyController {
             }
 
             companyEntity.setCompanyCode(updateCompany.getCompanyCode());
+            companyEntity.setAbbr(updateCompany.getAbbr());
             companyEntity.setCompanyName(updateCompany.getCompanyName());
             companyEntity.setContactPersonName(updateCompany.getContactPersonName());
             companyEntity.setContactPersonMobile(updateCompany.getContactPersonMobile());

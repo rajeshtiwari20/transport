@@ -30,6 +30,8 @@ public class Company {
     private Long contactPersonMobile;
     private String companyCode;
 
+    private String abbr;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private CompanyType companyType;

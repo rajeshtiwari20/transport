@@ -6,6 +6,7 @@ import com.jaijobner.transport_new.dto.bill.BillResp;
 import com.jaijobner.transport_new.dto.bill.BillWriteReq;
 import com.jaijobner.transport_new.entity.BillDetailEntity;
 import com.jaijobner.transport_new.entity.BillEntity;
+import com.jaijobner.transport_new.entity.Company;
 import com.jaijobner.transport_new.entity.LoadingEntity;
 import com.jaijobner.transport_new.entity.PartyEntity;
 import com.jaijobner.transport_new.entity.UnloadingEntity;
@@ -27,6 +28,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -110,8 +112,11 @@ public class BillServiceImpl implements BillService {
                     newBill.setConsignee(consignee);
                     newBill.setYear(currentYear);
                     newBill.setMonth(currentMonth);
+                    newBill.setBillNumber("TEMP");
                     BillEntity savedBill = billRepository.save(newBill);
-                    log.info("New bill created with ID: {}", savedBill.getId());
+                    savedBill.setBillNumber(generateBillNumber(loading.getCompany(), savedBill.getId()));
+                    savedBill = billRepository.save(savedBill);
+                    log.info("New bill created with ID: {}, bill number: {}", savedBill.getId(), savedBill.getBillNumber());
                     return savedBill;
                 });
 
@@ -257,5 +262,34 @@ public class BillServiceImpl implements BillService {
         }
 
         return unloading;
+    }
+
+    private String generateBillNumber(Company company, Long billId) {
+        if (company == null) {
+            throw new IllegalStateException("Company is required to generate bill number");
+        }
+        if (company.getAbbr() == null || company.getAbbr().isBlank()) {
+            throw new IllegalStateException("Company abbreviation is not set for company id: " + company.getId());
+        }
+
+        String billNumber = company.getAbbr() + "/" + getFinancialYearRange() + "/" + new DecimalFormat("0000").format(billId);
+        log.debug("Generated bill number: {} for company ID: {}, bill ID: {}", billNumber, company.getId(), billId);
+        return billNumber;
+    }
+
+    private String getFinancialYearRange() {
+        LocalDate today = LocalDate.now();
+        int startYear;
+        int endYear;
+
+        if (today.getMonthValue() >= Month.APRIL.getValue()) {
+            startYear = today.getYear();
+            endYear = today.getYear() + 1;
+        } else {
+            startYear = today.getYear() - 1;
+            endYear = today.getYear();
+        }
+
+        return String.format("%02d-%02d", startYear % 100, endYear % 100);
     }
 }
