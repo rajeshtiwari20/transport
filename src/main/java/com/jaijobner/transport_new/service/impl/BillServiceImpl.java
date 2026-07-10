@@ -113,6 +113,7 @@ public class BillServiceImpl implements BillService {
                     newBill.setYear(currentYear);
                     newBill.setMonth(currentMonth);
                     newBill.setBillNumber("TEMP");
+                    newBill.setTotalAmount(0.0);
                     BillEntity savedBill = billRepository.save(newBill);
                     savedBill.setBillNumber(generateBillNumber(loading.getCompany(), savedBill.getId()));
                     savedBill = billRepository.save(savedBill);
