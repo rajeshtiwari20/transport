@@ -16,6 +16,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Table(name = "bill_details")
@@ -29,6 +30,11 @@ public class BillDetailEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bill_id")
     private BillEntity bill;
+
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "truck_id", nullable = false)
+    private TruckEntity truck;
 
     @Column(nullable = false)
     private String truckNum;
@@ -45,20 +51,23 @@ public class BillDetailEntity {
 
     private String grade;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "DECIMAL(10,3)")
     private Double weight = 0.0;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "DECIMAL(10,3)")
     private Double unloadedWeight = 0.0;
 
-    @Column(nullable = false)
-    private Double diff = 0.0;
+    @Column(nullable = false, columnDefinition = "DECIMAL(10,3)")
+    private Double difference = 0.0;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "DECIMAL(10,3)")
     private Double freight = 0.0;
 
     @Column(nullable = false)
     private Double amount = 0.0;
+
+    @Column(nullable = false)
+    private LocalDate unloadingDate;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

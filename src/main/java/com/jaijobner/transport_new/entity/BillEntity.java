@@ -18,6 +18,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,22 +32,41 @@ public class BillEntity {
     private Long id;
 
     @Column(nullable = false)
+    private Year year;
+
+    @Column(nullable = false)
+    private Month month;
+
+    @Column(nullable = false)
+    private LocalDate startDate;
+
+    @Column(nullable = false)
+    private LocalDate endDate;
+
+    @Column(nullable = false)
     private String billNumber;
 
     @Column(nullable = false)
     private LocalDate billDate;
 
-    private String freight;
+    private Double freight = 0.0;
 
-    private Double shortage;
+    private Double variationRate = 0.0;
+
+    private Boolean isShortage = false;
 
     @Column(nullable = false)
-    private Double total;
+    private Double totalAmount;
 
     @ToString.Exclude
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "unloading_id", unique = true)
     private UnloadingEntity unloading;
+
+    @ToString.Exclude
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "consignee_id", nullable = false)
+    private PartyEntity consignee;
 
     @ToString.Exclude
     @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)

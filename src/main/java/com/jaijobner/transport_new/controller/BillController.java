@@ -46,7 +46,7 @@ public class BillController {
         }
 
         try {
-            billService.createBill(req);
+            //billService.createBill(req);
             return ResponseEntity.ok(ApiResponse.success("Bill created successfully", null));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(404).body(ApiResponse.fail(e.getMessage()));
