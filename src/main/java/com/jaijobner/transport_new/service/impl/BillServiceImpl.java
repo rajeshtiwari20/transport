@@ -268,7 +268,7 @@ public class BillServiceImpl implements BillService {
                 .reduce(0.0, Double::sum);
 
         double totalFreight = billEntity.getBillDetails().stream()
-                .map(BillDetailEntity::getFreight)
+                .map(BillDetailEntity::getTotalAmount)
                 .filter(Objects::nonNull)
                 .reduce(0.0, Double::sum);
         
