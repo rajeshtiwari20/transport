@@ -169,7 +169,20 @@ public class UnloadingServiceImpl implements UnloadingService {
         unloading.setRate(req.getRate());
         unloading.setGrFreight(req.getGrFreight());
 
-        unloadingRepository.save(unloading);
+        UnloadingEntity savedUnloading = unloadingRepository.save(unloading);
+
+        LoadingEntity loading = loadingRepository.findById(req.getLoadingId())
+                .orElseThrow(() -> {
+                    log.warn("Loading not found with id: {}", req.getLoadingId());
+                    return new EntityNotFoundException("Loading not found with id:" + req.getLoadingId());
+                });
+
+        if (savedUnloading.getBilledAt() != null) {
+            billService.updateBill(loading, savedUnloading);
+            log.info("Bill updated for unloading ID: {}", id);
+        } else {
+            log.info("Unloading ID: {} is not billed yet, skipping bill update", id);
+        }
 
         log.info("Unloading updated successfully with ID: {}", id);
     }

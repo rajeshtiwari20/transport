@@ -13,6 +13,8 @@ public interface BillService {
 
     void createBill(LoadingEntity loading, UnloadingEntity unloading);
 
+    void updateBill(LoadingEntity loading, UnloadingEntity unloading);
+
     void createBill(BillWriteReq req);
 
     BillGetResp getBill(Long id);

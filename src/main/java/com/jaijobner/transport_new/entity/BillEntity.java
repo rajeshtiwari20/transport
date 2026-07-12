@@ -52,15 +52,13 @@ public class BillEntity {
 
     private Double variationRate = 0.0;
 
+    @Column(columnDefinition = "DOUBLE(10,3)")
+    private Double variationWeight = 0.0;
+
     private Boolean isShortage = false;
 
     @Column(nullable = false)
     private Double totalAmount;
-
-    @ToString.Exclude
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unloading_id", unique = true)
-    private UnloadingEntity unloading;
 
     @ToString.Exclude
     @OneToOne(fetch = FetchType.LAZY)

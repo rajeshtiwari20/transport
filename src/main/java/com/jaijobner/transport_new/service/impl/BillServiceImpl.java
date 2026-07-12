@@ -17,6 +17,8 @@ import com.jaijobner.transport_new.repository.BillRepository;
 import com.jaijobner.transport_new.repository.UnloadingRepository;
 import com.jaijobner.transport_new.service.BillService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +36,9 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Year;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -65,9 +69,10 @@ public class BillServiceImpl implements BillService {
 
             if (req.getSearchTerm() != null && !req.getSearchTerm().trim().isEmpty()) {
                 String pattern = "%" + req.getSearchTerm().trim().toLowerCase() + "%";
+                Join<BillEntity, PartyEntity> consignee = root.join("consignee", JoinType.LEFT);
                 Predicate billNumber = cb.like(cb.lower(root.get("billNumber")), pattern);
-                Predicate freight = cb.like(cb.lower(root.get("freight")), pattern);
-                predicates.add(cb.or(billNumber, freight));
+                Predicate partyName = cb.like(cb.lower(consignee.get("partyName")), pattern);
+                predicates.add(cb.or(billNumber, partyName));
             }
 
             if (req.getStartDate() != null) {
@@ -105,7 +110,7 @@ public class BillServiceImpl implements BillService {
                 .orElseGet(() -> {
                     log.info("No existing bill found for consignee ID: {}, year: {}, month: {}. Creating new bill.",
                             consignee.getId(), currentYear, currentMonth);
-                    BillEntity newBill = billMapper.toBillEntityFromLoadingAndUnloading(loading, unloading);
+                    BillEntity newBill = billMapper.toBillEntityFromLoading(loading);
                     newBill.setStartDate(firstDayOfMonth);
                     newBill.setEndDate(lastDayOfMonth);
                     newBill.setBillDate(lastDayOfMonth);
@@ -136,30 +141,48 @@ public class BillServiceImpl implements BillService {
 
     @Override
     @Transactional
+    public void updateBill(LoadingEntity loading, UnloadingEntity unloading) {
+        log.info("Updating bill from loading ID: {} and unloading ID: {}", loading.getId(), unloading.getId());
+
+        BillDetailEntity detail = billDetailRepository.findByUnloadingId(unloading.getId())
+                .orElseThrow(() -> {
+                    log.warn("Bill detail not found for unloading ID: {}", unloading.getId());
+                    return new EntityNotFoundException("Bill detail not found for unloading id: " + unloading.getId());
+                });
+
+        billDetailMapper.updateBillDetailEntityFromLoadingAndUnloading(loading, unloading, detail);
+        billDetailRepository.save(detail);
+
+        BillEntity billEntity = detail.getBill();
+        recalculateBillTotals(billEntity);
+        billRepository.save(billEntity);
+
+        log.info("Bill detail updated for bill ID: {} and unloading ID: {}. Total amount: {}, freight: {}",
+                billEntity.getId(), unloading.getId(), billEntity.getTotalAmount(), billEntity.getFreight());
+    }
+
+    @Override
+    @Transactional
     public void createBill(BillWriteReq req) {
-        log.info("Creating bill for unloading ID: {} with {} detail(s)",
-                req.getUnloadingId(), req.getBillDetailReqList().size());
+        log.info("Creating bill with {} detail(s)", req.getBillDetailReqList().size());
 
         try {
-            UnloadingEntity unloading = resolveUnloadingForBilling(req.getUnloadingId());
-
             BillEntity billEntity = billMapper.toBillEntity(req);
-            billEntity.setUnloading(unloading);
             BillEntity savedBill = billRepository.save(billEntity);
 
             List<BillDetailEntity> details = req.getBillDetailReqList().stream()
-                    .map(billDetailMapper::toBillDetailEntity)
-                    .peek(detail -> detail.setBill(savedBill))
+                    .map(detailReq -> {
+                        BillDetailEntity detail = billDetailMapper.toBillDetailEntity(detailReq);
+                        linkDetailUnloading(detail, detailReq.getUnloadingId(), null);
+                        detail.setBill(savedBill);
+                        return detail;
+                    })
                     .toList();
             billDetailRepository.saveAll(details);
 
-            unloading.setBilledAt(LocalDateTime.now());
-            unloadingRepository.save(unloading);
-
-            log.info("Bill created with ID: {} for unloading ID: {}", savedBill.getId(), unloading.getId());
+            log.info("Bill created with ID: {}", savedBill.getId());
         } catch (Exception e) {
-            log.error("Error occurred while creating bill for unloading ID: {}: {}",
-                    req.getUnloadingId(), e.getMessage(), e);
+            log.error("Error occurred while creating bill: {}", e.getMessage(), e);
             throw e;
         }
     }
@@ -182,8 +205,7 @@ public class BillServiceImpl implements BillService {
     @Override
     @Transactional
     public void updateBill(Long id, BillWriteReq req) {
-        log.info("Updating bill ID: {} for unloading ID: {} with {} detail(s)",
-                id, req.getUnloadingId(), req.getBillDetailReqList().size());
+        log.info("Updating bill ID: {} with {} detail(s)", id, req.getBillDetailReqList().size());
 
         BillEntity billEntity = billRepository.findById(id)
                 .orElseThrow(() -> {
@@ -191,7 +213,6 @@ public class BillServiceImpl implements BillService {
                     return new EntityNotFoundException("Bill not found with id: " + id);
                 });
 
-        updateBillUnloading(billEntity, req.getUnloadingId());
         billMapper.updateBillEntity(req, billEntity);
         billRepository.save(billEntity);
 
@@ -201,16 +222,32 @@ public class BillServiceImpl implements BillService {
                 .filter(childId -> childId > 0)
                 .collect(Collectors.toSet());
 
+        Map<Long, UnloadingEntity> existingUnloadingsByDetailId = new HashMap<>();
+        for (BillDetailEntity detail : billEntity.getBillDetails()) {
+            if (detail.getId() != null) {
+                existingUnloadingsByDetailId.put(detail.getId(), detail.getUnloading());
+            }
+            if (!incomingChildIds.contains(detail.getId())) {
+                clearDetailBilling(detail);
+            }
+        }
+
         billEntity.getBillDetails().removeIf(detail -> !incomingChildIds.contains(detail.getId()));
 
         List<BillDetailEntity> details = req.getBillDetailReqList().stream()
                 .map(detailReq -> {
+                    BillDetailEntity detail;
                     if (detailReq.getId() != null && detailReq.getId() > 0) {
-                        return billDetailMapper.toBillDetailEntityForUpdate(detailReq);
+                        detail = billDetailMapper.toBillDetailEntityForUpdate(detailReq);
+                        linkDetailUnloading(detail, detailReq.getUnloadingId(),
+                                existingUnloadingsByDetailId.get(detailReq.getId()));
+                    } else {
+                        detail = billDetailMapper.toBillDetailEntity(detailReq);
+                        linkDetailUnloading(detail, detailReq.getUnloadingId(), null);
                     }
-                    return billDetailMapper.toBillDetailEntity(detailReq);
+                    detail.setBill(billEntity);
+                    return detail;
                 })
-                .peek(detail -> detail.setBill(billEntity))
                 .toList();
 
         billDetailRepository.saveAll(details);
@@ -221,27 +258,38 @@ public class BillServiceImpl implements BillService {
         log.info("Bill updated successfully with ID: {}", id);
     }
 
-    private void updateBillUnloading(BillEntity billEntity, Long unloadingId) {
-        UnloadingEntity currentUnloading = billEntity.getUnloading();
-        if (currentUnloading != null && currentUnloading.getId().equals(unloadingId)) {
-            log.debug("Bill ID: {} already linked to unloading ID: {}, no change needed",
-                    billEntity.getId(), unloadingId);
+    private void linkDetailUnloading(BillDetailEntity detail, Long unloadingId, UnloadingEntity previousUnloading) {
+        if (unloadingId == null) {
+            throw new IllegalArgumentException("Unloading is required for bill detail");
+        }
+
+        if (previousUnloading != null && previousUnloading.getId().equals(unloadingId)) {
+            detail.setUnloading(previousUnloading);
             return;
         }
 
-        if (currentUnloading != null) {
-            log.info("Removing billing link from unloading ID: {} for bill ID: {}",
-                    currentUnloading.getId(), billEntity.getId());
-            currentUnloading.setBilledAt(null);
-            unloadingRepository.save(currentUnloading);
+        if (previousUnloading != null) {
+            log.info("Removing billing link from unloading ID: {}", previousUnloading.getId());
+            previousUnloading.setBilledAt(null);
+            unloadingRepository.save(previousUnloading);
         }
 
-        UnloadingEntity newUnloading = resolveUnloadingForBilling(unloadingId);
-        newUnloading.setBilledAt(LocalDateTime.now());
-        billEntity.setUnloading(newUnloading);
-        unloadingRepository.save(newUnloading);
+        UnloadingEntity unloading = resolveUnloadingForBilling(unloadingId);
+        unloading.setBilledAt(LocalDateTime.now());
+        unloadingRepository.save(unloading);
+        detail.setUnloading(unloading);
 
-        log.info("Bill ID: {} linked to unloading ID: {}", billEntity.getId(), unloadingId);
+        log.info("Bill detail linked to unloading ID: {}", unloadingId);
+    }
+
+    private void clearDetailBilling(BillDetailEntity detail) {
+        UnloadingEntity unloading = detail.getUnloading();
+        if (unloading != null) {
+            log.info("Clearing billing link from unloading ID: {} for removed bill detail ID: {}",
+                    unloading.getId(), detail.getId());
+            unloading.setBilledAt(null);
+            unloadingRepository.save(unloading);
+        }
     }
 
     private UnloadingEntity resolveUnloadingForBilling(Long unloadingId) {
@@ -271,7 +319,7 @@ public class BillServiceImpl implements BillService {
                 .map(BillDetailEntity::getAmount)
                 .filter(Objects::nonNull)
                 .reduce(0.0, Double::sum);
-        
+
         billEntity.setIsShortage(billEntity.getBillDetails().stream()
                 .anyMatch(billDetail -> billDetail.getDifference() != null && billDetail.getDifference() != 0));
 
@@ -282,6 +330,7 @@ public class BillServiceImpl implements BillService {
         double totalAmount = isShortage ? totalFreight - variationAmount : totalFreight + variationAmount;
 
         billEntity.setFreight(totalFreight);
+        billEntity.setVariationWeight(totalDifference);
         billEntity.setTotalAmount(totalAmount);
     }
 

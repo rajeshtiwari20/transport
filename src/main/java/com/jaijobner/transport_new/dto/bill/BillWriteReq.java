@@ -23,9 +23,6 @@ public class BillWriteReq {
     @NotNull(message = "Total is required")
     private Double total;
 
-    @NotNull(message = "Unloading is required")
-    private Long unloadingId;
-
     @NotEmpty(message = "At least one bill detail is required")
     @Valid
     private List<BillDetailReq> billDetailReqList;
@@ -34,6 +31,7 @@ public class BillWriteReq {
     public static class BillDetailReq {
         private Long id;
 
+        @NotNull(message = "Unloading is required")
         private Long unloadingId;
 
         private Long loadingId;
